@@ -1,0 +1,502 @@
+[
+  {
+    "id": "e-f00-corr-0--f00-corr-1",
+    "fromNode": "n-f00-corr-0",
+    "toNode": "n-f00-corr-1",
+    "distance": 7.5,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-corr-1--f00-corr-2",
+    "fromNode": "n-f00-corr-1",
+    "toNode": "n-f00-corr-2",
+    "distance": 9.5,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-corr-2--f00-corr-3",
+    "fromNode": "n-f00-corr-2",
+    "toNode": "n-f00-corr-3",
+    "distance": 8.75,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-corr-3--f00-corr-4",
+    "fromNode": "n-f00-corr-3",
+    "toNode": "n-f00-corr-4",
+    "distance": 3.75,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-corr-4--f00-corr-5",
+    "fromNode": "n-f00-corr-4",
+    "toNode": "n-f00-corr-5",
+    "distance": 3.75,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-corr-5--f00-corr-6",
+    "fromNode": "n-f00-corr-5",
+    "toNode": "n-f00-corr-6",
+    "distance": 2.75,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-corr-1--f00-door-r01",
+    "fromNode": "n-f00-corr-1",
+    "toNode": "n-f00-door-r01",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-corr-2--f00-door-r02",
+    "fromNode": "n-f00-corr-2",
+    "toNode": "n-f00-door-r02",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-corr-3--f00-door-r03",
+    "fromNode": "n-f00-corr-3",
+    "toNode": "n-f00-door-r03",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": false,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-corr-5--f00-door-r04",
+    "fromNode": "n-f00-corr-5",
+    "toNode": "n-f00-door-r04",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-corr-1--f00-door-r05",
+    "fromNode": "n-f00-corr-1",
+    "toNode": "n-f00-door-r05",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-corr-2--f00-door-r06",
+    "fromNode": "n-f00-corr-2",
+    "toNode": "n-f00-door-r06",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-corr-4--f00-door-r07",
+    "fromNode": "n-f00-corr-4",
+    "toNode": "n-f00-door-r07",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-corr-0--f00-stair",
+    "fromNode": "n-f00-corr-0",
+    "toNode": "n-f00-stair",
+    "distance": 3,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-corr-0--f00-elev",
+    "fromNode": "n-f00-corr-0",
+    "toNode": "n-f00-elev",
+    "distance": 3.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-corr-0--f01-corr-1",
+    "fromNode": "n-f01-corr-0",
+    "toNode": "n-f01-corr-1",
+    "distance": 7.5,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-corr-1--f01-corr-2",
+    "fromNode": "n-f01-corr-1",
+    "toNode": "n-f01-corr-2",
+    "distance": 9.5,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-corr-2--f01-corr-3",
+    "fromNode": "n-f01-corr-2",
+    "toNode": "n-f01-corr-3",
+    "distance": 8.75,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-corr-3--f01-corr-4",
+    "fromNode": "n-f01-corr-3",
+    "toNode": "n-f01-corr-4",
+    "distance": 3.75,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-corr-4--f01-corr-5",
+    "fromNode": "n-f01-corr-4",
+    "toNode": "n-f01-corr-5",
+    "distance": 3.75,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-corr-5--f01-corr-6",
+    "fromNode": "n-f01-corr-5",
+    "toNode": "n-f01-corr-6",
+    "distance": 2.75,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-corr-1--f01-door-r01",
+    "fromNode": "n-f01-corr-1",
+    "toNode": "n-f01-door-r01",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-corr-2--f01-door-r02",
+    "fromNode": "n-f01-corr-2",
+    "toNode": "n-f01-door-r02",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-corr-3--f01-door-r03",
+    "fromNode": "n-f01-corr-3",
+    "toNode": "n-f01-door-r03",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-corr-5--f01-door-r04",
+    "fromNode": "n-f01-corr-5",
+    "toNode": "n-f01-door-r04",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-corr-1--f01-door-r05",
+    "fromNode": "n-f01-corr-1",
+    "toNode": "n-f01-door-r05",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-corr-2--f01-door-r06",
+    "fromNode": "n-f01-corr-2",
+    "toNode": "n-f01-door-r06",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-corr-4--f01-door-r07",
+    "fromNode": "n-f01-corr-4",
+    "toNode": "n-f01-door-r07",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-corr-0--f01-stair",
+    "fromNode": "n-f01-corr-0",
+    "toNode": "n-f01-stair",
+    "distance": 3,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-corr-0--f01-elev",
+    "fromNode": "n-f01-corr-0",
+    "toNode": "n-f01-elev",
+    "distance": 3.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f02-corr-0--f02-corr-1",
+    "fromNode": "n-f02-corr-0",
+    "toNode": "n-f02-corr-1",
+    "distance": 7.5,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f02-corr-1--f02-corr-2",
+    "fromNode": "n-f02-corr-1",
+    "toNode": "n-f02-corr-2",
+    "distance": 9.5,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f02-corr-2--f02-corr-3",
+    "fromNode": "n-f02-corr-2",
+    "toNode": "n-f02-corr-3",
+    "distance": 8.75,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f02-corr-3--f02-corr-4",
+    "fromNode": "n-f02-corr-3",
+    "toNode": "n-f02-corr-4",
+    "distance": 3.75,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f02-corr-4--f02-corr-5",
+    "fromNode": "n-f02-corr-4",
+    "toNode": "n-f02-corr-5",
+    "distance": 3.75,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f02-corr-5--f02-corr-6",
+    "fromNode": "n-f02-corr-5",
+    "toNode": "n-f02-corr-6",
+    "distance": 2.75,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f02-corr-1--f02-door-r01",
+    "fromNode": "n-f02-corr-1",
+    "toNode": "n-f02-door-r01",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f02-corr-2--f02-door-r02",
+    "fromNode": "n-f02-corr-2",
+    "toNode": "n-f02-door-r02",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f02-corr-3--f02-door-r03",
+    "fromNode": "n-f02-corr-3",
+    "toNode": "n-f02-door-r03",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f02-corr-5--f02-door-r04",
+    "fromNode": "n-f02-corr-5",
+    "toNode": "n-f02-door-r04",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f02-corr-1--f02-door-r05",
+    "fromNode": "n-f02-corr-1",
+    "toNode": "n-f02-door-r05",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f02-corr-2--f02-door-r06",
+    "fromNode": "n-f02-corr-2",
+    "toNode": "n-f02-door-r06",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f02-corr-4--f02-door-r07",
+    "fromNode": "n-f02-corr-4",
+    "toNode": "n-f02-door-r07",
+    "distance": 1.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f02-corr-0--f02-stair",
+    "fromNode": "n-f02-corr-0",
+    "toNode": "n-f02-stair",
+    "distance": 3,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f02-corr-0--f02-elev",
+    "fromNode": "n-f02-corr-0",
+    "toNode": "n-f02-elev",
+    "distance": 3.5,
+    "edgeType": "door",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-entrance--f00-door-r06",
+    "fromNode": "n-f00-entrance",
+    "toNode": "n-f00-door-r06",
+    "distance": 10.5,
+    "edgeType": "corridor",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-stair--f01-stair",
+    "fromNode": "n-f00-stair",
+    "toNode": "n-f01-stair",
+    "distance": 7,
+    "edgeType": "stairs",
+    "accessible": false,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f00-elev--f01-elev",
+    "fromNode": "n-f00-elev",
+    "toNode": "n-f01-elev",
+    "distance": 8,
+    "edgeType": "elevator",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-stair--f02-stair",
+    "fromNode": "n-f01-stair",
+    "toNode": "n-f02-stair",
+    "distance": 7,
+    "edgeType": "stairs",
+    "accessible": false,
+    "bidirectional": true,
+    "isDemo": true
+  },
+  {
+    "id": "e-f01-elev--f02-elev",
+    "fromNode": "n-f01-elev",
+    "toNode": "n-f02-elev",
+    "distance": 8,
+    "edgeType": "elevator",
+    "accessible": true,
+    "bidirectional": true,
+    "isDemo": true
+  }
+]

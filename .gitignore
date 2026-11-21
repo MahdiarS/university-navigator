@@ -1,0 +1,39 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# build output
+.next/
+out/
+build/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+
+# env files (never commit secrets)
+.env
+.env.local
+.env.*.local
+.env.production
+
+# logs / OS
+npm-debug.log*
+.DS_Store
+Thumbs.db
+.vercel
+
+# Private architectural source drawings and heavy DCC files are excluded by default.
+# Remove a line only after explicit approval from the drawing owner.
+input-assets/cad/**/*.dwg
+input-assets/cad/**/*.dxf
+input-assets/cad/**/*.bak
+input-assets/blender/**/*.blend
+input-assets/blender/**/*.blend1
+!input-assets/**/README.md
+
+# python caches for scripts/
+__pycache__/
+*.pyc
+.venv/
+public/draco/

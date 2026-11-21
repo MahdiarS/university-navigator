@@ -1,0 +1,92 @@
+[
+  {
+    "id": "fac-f00-stairs",
+    "floorId": "floor-00",
+    "facilityType": "stairs",
+    "name": "راه‌پله (همکف)",
+    "positionX": -17,
+    "positionY": 0,
+    "positionZ": -3,
+    "isDemo": true
+  },
+  {
+    "id": "fac-f00-elevator",
+    "floorId": "floor-00",
+    "facilityType": "elevator",
+    "name": "آسانسور (همکف)",
+    "positionX": -17,
+    "positionY": 0,
+    "positionZ": 3.5,
+    "isDemo": true
+  },
+  {
+    "id": "fac-f00-restroom",
+    "floorId": "floor-00",
+    "facilityType": "restroom",
+    "name": "سرویس بهداشتی (همکف)",
+    "positionX": 16.25,
+    "positionY": 0,
+    "positionZ": -6.75,
+    "isDemo": true
+  },
+  {
+    "id": "fac-f01-stairs",
+    "floorId": "floor-01",
+    "facilityType": "stairs",
+    "name": "راه‌پله (طبقه اول)",
+    "positionX": -17,
+    "positionY": 4,
+    "positionZ": -3,
+    "isDemo": true
+  },
+  {
+    "id": "fac-f01-elevator",
+    "floorId": "floor-01",
+    "facilityType": "elevator",
+    "name": "آسانسور (طبقه اول)",
+    "positionX": -17,
+    "positionY": 4,
+    "positionZ": 3.5,
+    "isDemo": true
+  },
+  {
+    "id": "fac-f01-restroom",
+    "floorId": "floor-01",
+    "facilityType": "restroom",
+    "name": "سرویس بهداشتی (طبقه اول)",
+    "positionX": 16.25,
+    "positionY": 4,
+    "positionZ": -6.75,
+    "isDemo": true
+  },
+  {
+    "id": "fac-f02-stairs",
+    "floorId": "floor-02",
+    "facilityType": "stairs",
+    "name": "راه‌پله (طبقه دوم)",
+    "positionX": -17,
+    "positionY": 8,
+    "positionZ": -3,
+    "isDemo": true
+  },
+  {
+    "id": "fac-f02-elevator",
+    "floorId": "floor-02",
+    "facilityType": "elevator",
+    "name": "آسانسور (طبقه دوم)",
+    "positionX": -17,
+    "positionY": 8,
+    "positionZ": 3.5,
+    "isDemo": true
+  },
+  {
+    "id": "fac-f02-restroom",
+    "floorId": "floor-02",
+    "facilityType": "restroom",
+    "name": "سرویس بهداشتی (طبقه دوم)",
+    "positionX": 16.25,
+    "positionY": 8,
+    "positionZ": -6.75,
+    "isDemo": true
+  }
+]

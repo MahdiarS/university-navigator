@@ -1,0 +1,13 @@
+[
+  {
+    "id": "entrance-b01-main",
+    "buildingId": "building-01",
+    "floorId": "floor-00",
+    "name": "ورودی اصلی (نمونه)",
+    "positionX": 0,
+    "positionY": 0,
+    "positionZ": 12,
+    "nodeId": "n-f00-entrance",
+    "isDemo": true
+  }
+]

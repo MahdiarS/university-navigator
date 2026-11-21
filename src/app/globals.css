@@ -1,0 +1,128 @@
+@import "tailwindcss";
+@import "@fontsource-variable/vazirmatn/wght.css";
+
+/*
+ * Design tokens. Palette roles:
+ *   navy   -> primary navigation and key elements
+ *   gray   -> backgrounds and neutral surfaces (white + light gray)
+ *   blue   -> routes and selection (restrained)
+ *   teal   -> active states / route start
+ *   orange -> the selected destination (used for nothing else)
+ * The same hex values live in src/lib/theme/tokens.ts for Three.js; tests/theme.test.ts keeps them in sync.
+ */
+@theme {
+  --font-sans: "Vazirmatn Variable", Vazirmatn, ui-sans-serif, system-ui, "Segoe UI", Tahoma, Arial, sans-serif;
+  --font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --color-navy-900: #0b1f3a;
+  --color-navy-800: #10294d;
+  --color-navy-700: #183a68;
+
+  --color-blue-600: #2f6fda;
+  --color-blue-400: #6b9be8;
+  --color-blue-100: #dbe7fb;
+
+  --color-teal-600: #0f9488;
+  --color-teal-100: #d5f1ee;
+
+  --color-orange-500: #f08a24;
+  --color-orange-100: #fde8cf;
+
+  --color-gray-50: #f6f8fb;
+  --color-gray-100: #eef1f6;
+  --color-gray-200: #dde3ec;
+  --color-gray-300: #c3ccd9;
+  --color-gray-500: #7a8798;
+  --color-gray-700: #3b4757;
+
+  --radius-card: 14px;
+  --shadow-panel: 0 1px 2px rgb(11 31 58 / 0.06), 0 8px 24px rgb(11 31 58 / 0.08);
+  --shadow-float: 0 2px 6px rgb(11 31 58 / 0.1), 0 12px 32px rgb(11 31 58 / 0.14);
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  font-family: var(--font-sans);
+  background: var(--color-gray-50);
+  color: var(--color-navy-900);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  font-feature-settings: "kern", "liga";
+}
+
+/* Latin identifiers inside RTL text keep their own direction. */
+.ltr {
+  direction: ltr;
+  unicode-bidi: isolate;
+  text-align: left;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-blue-600);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Slider (range) styled for RTL + touch */
+input[type="range"].un-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 28px;
+  background: transparent;
+  width: 100%;
+}
+input[type="range"].un-range::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-gray-200);
+}
+input[type="range"].un-range::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-gray-200);
+}
+input[type="range"].un-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 22px;
+  width: 22px;
+  margin-top: -9px;
+  border-radius: 999px;
+  background: var(--color-navy-800);
+  border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgb(11 31 58 / 0.35);
+}
+input[type="range"].un-range::-moz-range-thumb {
+  height: 18px;
+  width: 18px;
+  border-radius: 999px;
+  background: var(--color-navy-800);
+  border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgb(11 31 58 / 0.35);
+}
+
+/* Thin scrollbars for panels */
+.un-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gray-300) transparent;
+}
+
+.un-viewer-bg {
+  background:
+    radial-gradient(1200px 600px at 70% 20%, #ffffff 0%, rgba(255, 255, 255, 0) 60%),
+    linear-gradient(180deg, #f1f5fa 0%, #e6ecf4 100%);
+}

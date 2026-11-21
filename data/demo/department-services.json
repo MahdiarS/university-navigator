@@ -1,0 +1,186 @@
+[
+  {
+    "id": "svc-education-office-01",
+    "departmentId": "dept-education-office",
+    "serviceName": "ثبت‌نام",
+    "keywords": [
+      "ثبت نام",
+      "ترم",
+      "نام نویسی"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-education-office-02",
+    "departmentId": "dept-education-office",
+    "serviceName": "انتخاب واحد و حذف و اضافه",
+    "keywords": [
+      "انتخاب واحد",
+      "حذف و اضافه",
+      "واحد"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-education-office-03",
+    "departmentId": "dept-education-office",
+    "serviceName": "کارنامه و ریزنمرات",
+    "keywords": [
+      "نمره",
+      "کارنامه",
+      "ریز نمرات"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-education-office-04",
+    "departmentId": "dept-education-office",
+    "serviceName": "گواهی و دانش‌آموختگی",
+    "keywords": [
+      "گواهی اشتغال به تحصیل",
+      "فارغ التحصیلی",
+      "مدرک"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-student-affairs-01",
+    "departmentId": "dept-student-affairs",
+    "serviceName": "خوابگاه",
+    "keywords": [
+      "اسکان",
+      "خوابگاه"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-student-affairs-02",
+    "departmentId": "dept-student-affairs",
+    "serviceName": "وام و تسهیلات دانشجویی",
+    "keywords": [
+      "وام",
+      "رفاهی",
+      "تسهیلات"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-student-affairs-03",
+    "departmentId": "dept-student-affairs",
+    "serviceName": "فعالیت‌های فرهنگی و انجمن‌ها",
+    "keywords": [
+      "انجمن",
+      "فرهنگی",
+      "تشکل"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-finance-office-01",
+    "departmentId": "dept-finance-office",
+    "serviceName": "پرداخت شهریه",
+    "keywords": [
+      "شهریه",
+      "پرداخت",
+      "فیش"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-finance-office-02",
+    "departmentId": "dept-finance-office",
+    "serviceName": "تسویه حساب",
+    "keywords": [
+      "تسویه",
+      "تسویه حساب"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-finance-office-03",
+    "departmentId": "dept-finance-office",
+    "serviceName": "استرداد وجه",
+    "keywords": [
+      "بازپرداخت",
+      "استرداد"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-library-01",
+    "departmentId": "dept-library",
+    "serviceName": "امانت کتاب",
+    "keywords": [
+      "کتاب",
+      "امانت",
+      "عضویت"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-library-02",
+    "departmentId": "dept-library",
+    "serviceName": "جستجوی منابع",
+    "keywords": [
+      "منابع",
+      "پایان نامه",
+      "مقاله"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-secretariat-01",
+    "departmentId": "dept-secretariat",
+    "serviceName": "ثبت و ارجاع نامه‌ها",
+    "keywords": [
+      "نامه",
+      "مکاتبات",
+      "ارجاع"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-secretariat-02",
+    "departmentId": "dept-secretariat",
+    "serviceName": "تأیید اسناد",
+    "keywords": [
+      "تایید",
+      "مهر",
+      "سند"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-archive-01",
+    "departmentId": "dept-archive",
+    "serviceName": "درخواست سوابق",
+    "keywords": [
+      "سوابق",
+      "بایگانی",
+      "پرونده"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-it-center-01",
+    "departmentId": "dept-it-center",
+    "serviceName": "حساب کاربری و رمز عبور",
+    "keywords": [
+      "رمز عبور",
+      "ایمیل",
+      "حساب کاربری"
+    ],
+    "isDemo": true
+  },
+  {
+    "id": "svc-it-center-02",
+    "departmentId": "dept-it-center",
+    "serviceName": "شبکه بی‌سیم و اینترنت",
+    "keywords": [
+      "وای فای",
+      "اینترنت",
+      "wifi"
+    ],
+    "isDemo": true
+  }
+]
