@@ -7,38 +7,46 @@
 Requires `pip install shapely`. The original DWG is never modified and is not read by this script.
 
 What it does (and deliberately does not do):
-  * Building footprints come from the closed outlines drawn in the DWG. Outlines with small gaps are closed by a
-    buffer-and-shrink step; a number whose outline is not closed (legend: "footprint": false) becomes a marker.
-    No shape is ever invented.
+  * Building footprints come from outlines drawn in the DWG: closed regions (small gaps are closed by a
+    buffer-and-shrink step) or, where an outline is drawn but left open, the polyline closed by joining its end to
+    its start (the owner confirmed this for buildings 7 and 14). A number without a usable outline becomes a
+    marker. No shape is invented.
+  * Pitch, court and the green space (park) are regions read from the drawing; their anchor points were measured
+    on the plot and are listed in campus-legend.json ("features").
+  * The pond position/size, the trees and the gazebos are DECORATIVE: the plan does not contain them (the owner
+    described a pond in the middle of the green space). They are generated with a fixed seed and flagged so
+    nobody reads them as survey data.
   * Coordinates are re-centred on the middle of the drawing and the georeference (UTM) is dropped. The shared
     convention is used: meters, X east, Z south (so Z = -northing), Y up.
-  * Heights are NOT in a site plan. They are a visualisation estimate: floors from the legend x storeyHeight.
+  * Heights are NOT in a site plan: floors from the legend x storeyHeight, flagged as an estimate.
 """
 from __future__ import annotations
 
 import json
 import math
+import random
 import re
 import sys
 from pathlib import Path
 
-from shapely.geometry import LineString, Point, Polygon
+from shapely import affinity
+from shapely.geometry import LineString, MultiPoint, Point, Polygon
 from shapely.ops import unary_union
+from shapely.prepared import prep
 
 ROOT = Path(__file__).resolve().parents[2]
 LEGEND = ROOT / "scripts/cad/campus-legend.json"
 OUT = ROOT / "data/campus/campus-layout.json"
 
-# Layers that carry building / site outlines in the supplied drawing (see docs/cad-import-guide.md).
-OUTLINE_LAYERS = {
-    "C-ANNO-MATC-TEXT", "0", "C-HYDR-CTCH-HDPT", "C-HYDR-CTCH-FSPT", "C-ANNO-TABL", "C-ESMT-ROAD", "C-PROP-BRNG",
-}
 VEGETATION_LAYER = "V-SITE-VEGE"
 # gap-closing tolerances tried in order for each building (meters); the smallest that closes the outline wins
 TOLERANCES = (0.3, 1.0, 2.5)
 MIN_AREA, MAX_AREA = 100.0, 4000.0
-# the sports pitch occupies this box (drawing-local meters, measured on the plot); its lines get their own style
-SPORTS_BOX = (40.0, 226.0, 96.0, 264.0)
+MAX_CLOSING_GAP = 25.0  # an open outline whose ends are further apart than this is not closed automatically
+WALL_TRIM = 0.25  # window-band / ledge outline sits this far outside the walls
+WALK_CLEARANCE = 1.5  # pedestrians keep this far from buildings, courts and the pond (routing obstacles)
+SEED = 20261121
+MAX_TREES = 260
 
 
 def strip_mtext(text: str) -> str:
@@ -72,9 +80,22 @@ def main(parsed_path: str) -> None:
             if isinstance(p, dict) and "x" in p and abs(p["x"]) > 1:
                 xs.append(p["x"]); ys.append(p["y"])
     minx, maxx, miny, maxy = min(xs), max(xs), min(ys), max(ys)
-    cx, cy = (minx + maxx) / 2, (miny + maxy) / 2
-    # drawing-local coordinates used for polygon work: origin at SW corner of the extents
-    ox, oy = minx, miny
+    ox, oy = minx, miny  # drawing-local origin: SW corner of the extents
+    shx, shy = (maxx - minx) / 2, (maxy - miny) / 2  # drawing-local centre
+
+    def to_c(x: float, y: float) -> dict:
+        """drawing-local (x east, y north) -> campus (x east, z south), centred."""
+        return {"x": r2(x - shx), "z": r2(-(y - shy))}
+
+    def flat(coords) -> list[float]:
+        out: list[float] = []
+        for x, y in coords:
+            c = to_c(x, y)
+            out += [c["x"], c["z"]]
+        return out
+
+    def ring(poly: Polygon) -> list[dict]:
+        return [to_c(x, y) for x, y in list(poly.exterior.coords)[:-1]]
 
     def arc_points(e, n=24):
         a0, a1 = e["startAngle"], e["endAngle"]
@@ -83,24 +104,26 @@ def main(parsed_path: str) -> None:
         c, r = e["center"], e["radius"]
         return [(c["x"] - ox + r * math.cos(a0 + (a1 - a0) * i / n), c["y"] - oy + r * math.sin(a0 + (a1 - a0) * i / n)) for i in range(n + 1)]
 
-    def linework(layers):
-        out = []
-        for e in ents:
-            if e["layer"] not in layers:
-                continue
-            t = e["type"]
-            if t == "LINE":
-                s, d = e["startPoint"], e["endPoint"]
-                out.append(LineString([(s["x"] - ox, s["y"] - oy), (d["x"] - ox, d["y"] - oy)]))
-            elif t == "LWPOLYLINE":
-                v = [(p["x"] - ox, p["y"] - oy) for p in e["vertices"]]
-                if e.get("flag", 0) & 1:
-                    v.append(v[0])
-                if len(v) > 1:
-                    out.append(LineString(v))
-            elif t == "ARC":
-                out.append(LineString(arc_points(e)))
-        return out
+    def geom_of(e):
+        t = e["type"]
+        if t == "LINE":
+            s, d = e["startPoint"], e["endPoint"]
+            return LineString([(s["x"] - ox, s["y"] - oy), (d["x"] - ox, d["y"] - oy)])
+        if t == "LWPOLYLINE":
+            v = [(p["x"] - ox, p["y"] - oy) for p in e["vertices"]]
+            if e.get("flag", 0) & 1:
+                v.append(v[0])
+            return LineString(v) if len(v) > 1 else None
+        if t == "ARC":
+            return LineString(arc_points(e))
+        if t == "CIRCLE":
+            c, r = e["center"], e["radius"]
+            return LineString([(c["x"] - ox + r * math.cos(2 * math.pi * i / 36), c["y"] - oy + r * math.sin(2 * math.pi * i / 36)) for i in range(37)])
+        return None
+
+    linear = [(e, geom_of(e)) for e in ents if e["type"] in ("LINE", "LWPOLYLINE", "ARC", "CIRCLE")]
+    linear = [(e, g) for e, g in linear if g is not None]
+    plan_lines = [g for e, g in linear if e["layer"] != VEGETATION_LAYER]
 
     def closed_faces(lines, tol):
         """Enclosed regions of a line set, tolerating gaps up to ~2*tol."""
@@ -108,12 +131,25 @@ def main(parsed_path: str) -> None:
         polys = [u] if isinstance(u, Polygon) else list(u.geoms)
         return [Polygon(r).buffer(tol, join_style="mitre") for p in polys for r in p.interiors]
 
-    outline_lines = linework(OUTLINE_LAYERS)
-    faces = {t: closed_faces(outline_lines, t) for t in TOLERANCES}
+    faces = {t: closed_faces(plan_lines, t) for t in TOLERANCES}
+    # open polylines closed by joining end to start (only when the gap is small compared with the outline)
+    closed_polylines: list[Polygon] = []
+    seen = set()
+    for e in ents:
+        if e["type"] != "LWPOLYLINE" or e["layer"] == VEGETATION_LAYER or len(e["vertices"]) < 4:
+            continue
+        v = [(p["x"] - ox, p["y"] - oy) for p in e["vertices"]]
+        if math.hypot(v[0][0] - v[-1][0], v[0][1] - v[-1][1]) > MAX_CLOSING_GAP:
+            continue
+        pg = Polygon(v)
+        key = (round(pg.area), tuple(round(c) for c in pg.bounds))
+        if pg.is_valid and MIN_AREA < pg.area < MAX_AREA and key not in seen:
+            seen.add(key)
+            closed_polylines.append(pg)
 
     # --- labels (the numbers printed on the plan) and entrance texts
     labels: dict[int, list[tuple[float, float]]] = {}
-    entrances = []
+    entrance_pts = []
     for e in ents:
         if e["type"] != "MTEXT":
             continue
@@ -122,18 +158,18 @@ def main(parsed_path: str) -> None:
         if re.fullmatch(r"\d+", txt):
             labels.setdefault(int(txt), []).append(p)
         elif txt == "درب ورود":
-            entrances.append(p)
+            entrance_pts.append(p)
 
     # --- buildings
     storey = float(legend["storeyHeight"])
-    buildings, taken = [], []
+    buildings, taken, taken_ids = [], [], []
     for item in legend["buildings"]:
         n = item["number"]
         pts = labels.get(n, [])
         if not pts:
             print(f"WARNING: no label {n} in drawing", file=sys.stderr)
             continue
-        poly = None
+        poly, how = None, ""
         if item["footprint"]:
             for tol in TOLERANCES:
                 hit = sorted((f for f in faces[tol] if f.contains(Point(pts[0])) and MIN_AREA < f.area < MAX_AREA), key=lambda f: f.area)
@@ -141,10 +177,16 @@ def main(parsed_path: str) -> None:
                     poly = hit[0].buffer(-1.2, join_style="mitre").buffer(1.2, join_style="mitre")  # drop thin tendrils
                     if poly.geom_type != "Polygon":
                         poly = max(poly.geoms, key=lambda g: g.area)
-                    poly = poly.simplify(0.25)
+                    poly, how = poly.simplify(0.25), f"closed region (gap tolerance {tol} m)"
                     break
             if poly is None:
-                print(f"NOTE: building {n} has no closed outline; shown as a marker", file=sys.stderr)
+                hit = sorted((f for f in closed_polylines if f.contains(Point(pts[0]))), key=lambda f: f.area)
+                if hit:
+                    poly, how = hit[0].simplify(0.2), "open outline closed end-to-start"
+            if poly is None:
+                print(f"NOTE: building {n} has no usable outline; shown as a marker", file=sys.stderr)
+            else:
+                print(f"building {n}: {poly.area:.0f} m2 from {how}")
         floors = item["floors"]
         height = (floors or 1) * storey
         name = item["name"]
@@ -166,12 +208,13 @@ def main(parsed_path: str) -> None:
         }
         if poly is not None:
             c = poly.centroid
-            minx_, miny_, maxx_, maxy_ = poly.bounds
-            entry["position"] = {"x": r2(c.x - (cx - ox)), "z": r2(-(c.y - (cy - oy)))}
-            entry["size"] = {"width": r2(maxx_ - minx_), "depth": r2(maxy_ - miny_), "height": height}
-            ring = list(poly.exterior.coords)[:-1]
-            entry["footprint"] = [{"x": r2(x - (cx - ox)), "z": r2(-(y - (cy - oy)))} for x, y in ring]
-            taken.append(poly.buffer(1.0))
+            b0 = poly.bounds
+            entry["position"] = to_c(c.x, c.y)
+            entry["size"] = {"width": r2(b0[2] - b0[0]), "depth": r2(b0[3] - b0[1]), "height": height}
+            entry["footprint"] = ring(poly)
+            entry["trim"] = ring(poly.buffer(WALL_TRIM, join_style="mitre").simplify(0.15))
+            taken.append(poly)
+            taken_ids.append(entry["id"])
             buildings.append(entry)
         else:
             for k, (px, py) in enumerate(pts):
@@ -180,74 +223,199 @@ def main(parsed_path: str) -> None:
                 e2 = dict(entry)
                 if k:
                     e2["id"] = f"campus-b{n}-{k + 1}"
-                e2["position"] = {"x": r2(px - (cx - ox)), "z": r2(-(py - (cy - oy)))}
+                e2["position"] = to_c(px, py)
                 e2["size"] = {"width": 6.0, "depth": 6.0, "height": 1.0}
                 buildings.append(e2)
 
-    # --- context linework (flat lines on the ground): vegetation, sports pitch, other site lines
-    taken_union = unary_union(taken) if taken else None
+    # --- ground outline: hull of the whole drawing, slightly enlarged (a base the scene stands on)
+    all_pts = [pt for _, g in linear for pt in g.coords]
+    hull = MultiPoint(all_pts).convex_hull.buffer(6, join_style="mitre")
+    hull_p = prep(hull)
+
+    # --- regions measured on the plot (anchors in legend.features, drawing-local meters)
+    feats = legend["features"]
+    all_faces = closed_faces([g for _, g in linear], 1.0)
+
+    def face_at(anchor, lo, hi):
+        hit = sorted((f for f in all_faces if f.contains(Point(anchor)) and lo < f.area < hi), key=lambda f: f.area)
+        return hit[0] if hit else None
+
+    areas, obstacles = [], list(taken)
+    park = face_at(feats["park"]["anchor"], 1500, 6000)
+    pitch_src = face_at(feats["pitch"]["anchor"], 200, 1200)
+    court_pts = [g for e, g in linear if e["layer"] == "C-HYDR-CTCH-HDPT" and g.distance(Point(feats["court"]["anchor"])) < feats["court"]["radius"] and g.length < 40]
+    court_src = unary_union(court_pts).convex_hull if court_pts else None
+    if park is None or pitch_src is None or court_src is None:
+        print("WARNING: could not recover park/pitch/court regions", file=sys.stderr)
+    sports_shapes, sports_ids = [], []
+    for key, region, rotate in (("park", park, False), ("pitch", pitch_src, True), ("court", court_src, True)):
+        if region is None:
+            continue
+        shape = region.minimum_rotated_rectangle if rotate else region.simplify(0.3)
+        areas.append({"id": f"area-{key}", "kind": key, "name": feats[key]["name"], "polygon": ring(shape)})
+        if key != "park":
+            obstacles.append(shape)
+            sports_shapes.append(shape)
+            sports_ids.append(f"area-{key}")
+
+    # planting beds drawn on the vegetation layer: closed outlines (duplicates dropped)
+    beds, seen_beds = [], set()
+    for e in ents:
+        if e["layer"] != VEGETATION_LAYER or e["type"] != "LWPOLYLINE" or len(e["vertices"]) < 4:
+            continue
+        pg = Polygon([(p["x"] - ox, p["y"] - oy) for p in e["vertices"]])
+        key = (tuple(round(c) for c in pg.bounds), len(e["vertices"]))
+        if key in seen_beds or not pg.is_valid or not 4 < pg.area < 900:
+            continue
+        seen_beds.add(key)
+        if any(pg.intersects(o.buffer(0.5)) for o in obstacles):
+            continue  # overlaps a building, pitch or court outline: a drafting artefact, not a bed
+        beds.append(pg.simplify(0.2))
+    for i, bd in enumerate(beds):
+        areas.append({"id": f"area-bed-{i + 1}", "kind": "bed", "name": None, "polygon": ring(bd)})
+
+    # --- decorative pond (the owner: "a pond in the middle of the green space"); position/size are approximate
+    ponds, pond_shape, theta, long_len = [], None, 0.0, 0.0
+    if park is not None:
+        rc = list(park.minimum_rotated_rectangle.exterior.coords)
+        e1 = (rc[1][0] - rc[0][0], rc[1][1] - rc[0][1])
+        e2 = (rc[2][0] - rc[1][0], rc[2][1] - rc[1][1])
+        long_v = e1 if math.hypot(*e1) >= math.hypot(*e2) else e2
+        long_len = max(math.hypot(*e1), math.hypot(*e2))
+        theta = math.atan2(long_v[1], long_v[0])  # angle of the long axis in drawing space (ccw from +x)
+        pc = park.centroid
+        a, b = 0.17 * long_len, 0.13 * long_len
+        pcc = to_c(pc.x, pc.y)
+        ponds.append({"id": "pond-1", "x": pcc["x"], "z": pcc["z"], "rx": r2(a), "rz": r2(b), "angle": r2(theta), "decorative": True})
+        pond_shape = affinity.rotate(affinity.scale(Point(pc.x, pc.y).buffer(1, 32), a, b), math.degrees(theta), origin=(pc.x, pc.y))
+        obstacles.append(pond_shape)
+
+    # --- decorative trees and gazebos (seeded, deterministic)
+    rnd = random.Random(SEED)
+    free = prep(unary_union([o.buffer(3.0) for o in obstacles]))
+    placed: list[tuple[float, float]] = []
+    trees: list[dict] = []
+
+    def ok(x, y, gap):
+        if not hull_p.contains(Point(x, y).buffer(3)) or free.contains(Point(x, y)):
+            return False
+        return all(math.hypot(x - qx, y - qy) >= gap for qx, qy in placed)
+
+    def add_tree(x, y, kind=None, scale=None):
+        placed.append((x, y))
+        c = to_c(x, y)
+        trees.append({"x": c["x"], "z": c["z"], "kind": kind or ("pine" if rnd.random() < 0.3 else "round"), "scale": r2(scale or rnd.uniform(0.8, 1.4))})
+
+    if park is not None and pond_shape is not None:  # a ring around the pond and along the edge of the green space
+        pc = park.centroid
+        for i in range(14):
+            ang = 2 * math.pi * i / 14 + rnd.uniform(-0.15, 0.15)
+            x, y = pc.x + math.cos(ang + theta) * a * 1.9, pc.y + math.sin(ang + theta) * b * 2.1
+            if park.buffer(-2).contains(Point(x, y)) and ok(x, y, 4):
+                add_tree(x, y)
+        edge = park.buffer(-3.2).exterior
+        for i in range(int(edge.length // 9)):
+            pt = edge.interpolate(i * 9 + rnd.uniform(-1, 1))
+            if ok(pt.x, pt.y, 5) and not pond_shape.buffer(4).contains(pt):
+                add_tree(pt.x, pt.y)
+    for bd in beds:  # shrubs/trees inside the planting beds
+        x0, y0, x1, y1 = bd.bounds
+        for _ in range(int(bd.area // 40) + 1):
+            for _try in range(20):
+                x, y = rnd.uniform(x0, x1), rnd.uniform(y0, y1)
+                if bd.contains(Point(x, y)) and all(math.hypot(x - qx, y - qy) >= 4 for qx, qy in placed):
+                    add_tree(x, y, "round", rnd.uniform(0.7, 1.1))
+                    break
+    x0, y0, x1, y1 = hull.bounds
+    for _ in range(6000):  # scattered lawn trees
+        if len(trees) >= MAX_TREES:
+            break
+        x, y = rnd.uniform(x0, x1), rnd.uniform(y0, y1)
+        if ok(x, y, 9):
+            add_tree(x, y)
+
+    props: list[dict] = []
+    prop_xy: list[tuple[float, float]] = []
+
+    def free_spot(ax_, ay_):
+        """nearest free point to an anchor, searching outwards in rings; keeps gazebos 12 m apart."""
+        for rad in range(4, 40, 3):
+            for k in range(16):
+                ang = 2 * math.pi * k / 16 + rnd.uniform(0, 0.3)
+                x, y = ax_ + rad * math.cos(ang), ay_ + rad * math.sin(ang)
+                if ok(x, y, 6) and all(math.hypot(x - qx, y - qy) >= 12 for qx, qy in prop_xy):
+                    return x, y
+        return None
+
+    anchors: list[tuple[float, float, bool]] = []
+    if park is not None:  # one at each end of the pond, on the lawn
+        pc = park.centroid
+        for sgn in (-1, 1):
+            anchors.append((pc.x + sgn * 0.36 * long_len * math.cos(theta), pc.y + sgn * 0.36 * long_len * math.sin(theta), True))
+    for n in (9, 3):  # next to the cafeteria and to the faculty-office/classroom block
+        b0 = next((q for q in buildings if q["number"] == n and q.get("footprint")), None)
+        if b0:
+            anchors.append((b0["position"]["x"] + shx, shy - b0["position"]["z"], False))
+    for ax_, ay_, exact in anchors:
+        spot = (ax_, ay_) if exact else free_spot(ax_, ay_)
+        if spot is None:
+            continue
+        placed.append(spot)
+        prop_xy.append(spot)
+        c = to_c(*spot)
+        props.append({"id": f"gazebo-{len(props) + 1}", "kind": "gazebo", "x": c["x"], "z": c["z"], "angle": r2(rnd.uniform(0, math.pi / 2)), "decorative": True})
+
+    # --- context linework: sports markings, hedge lines, other site lines (building edges skipped)
+    taken_union = unary_union([t.buffer(1.0) for t in taken]) if taken else None
+    sports_zone = unary_union([s.buffer(1.0) for s in sports_shapes]) if sports_shapes else None
     groups: dict[str, list[list[float]]] = {"vegetation": [], "sports": [], "site": []}
 
-    def add(kind, geom):
-        g = geom.simplify(0.25)
-        if g.is_empty or g.length < 0.8:
-            return
-        flat = []
-        for x, y in g.coords:
-            flat += [r2(x - (cx - ox)), r2(-(y - (cy - oy)))]
-        groups[kind].append(flat)
+    def add(kind, g):
+        g = g.simplify(0.25)
+        if not g.is_empty and g.length >= 0.8:
+            groups[kind].append(flat(g.coords))
 
-    for e in ents:
-        t = e["type"]
-        if t not in ("LINE", "LWPOLYLINE", "ARC", "CIRCLE") or e["layer"] not in OUTLINE_LAYERS | {VEGETATION_LAYER}:
-            continue
-        if t == "LINE":
-            s, d = e["startPoint"], e["endPoint"]
-            g = LineString([(s["x"] - ox, s["y"] - oy), (d["x"] - ox, d["y"] - oy)])
-        elif t == "LWPOLYLINE":
-            v = [(p["x"] - ox, p["y"] - oy) for p in e["vertices"]]
-            if e.get("flag", 0) & 1:
-                v.append(v[0])
-            if len(v) < 2:
-                continue
-            g = LineString(v)
-        elif t == "ARC":
-            g = LineString(arc_points(e))
-        else:  # CIRCLE
-            c, r = e["center"], e["radius"]
-            g = LineString([(c["x"] - ox + r * math.cos(2 * math.pi * i / 36), c["y"] - oy + r * math.sin(2 * math.pi * i / 36)) for i in range(37)])
-        if taken_union is not None and e["layer"] != VEGETATION_LAYER and taken_union.contains(g.interpolate(0.5, normalized=True)):
-            continue  # a building edge: the extruded footprint already draws it
+    for e, g in linear:
         mid = g.interpolate(0.5, normalized=True)
         if e["layer"] == VEGETATION_LAYER:
-            add("vegetation", g)
-        elif SPORTS_BOX[0] <= mid.x <= SPORTS_BOX[2] and SPORTS_BOX[1] <= mid.y <= SPORTS_BOX[3]:
-            add("sports", g)
-        else:
-            add("site", g)
+            if e["type"] in ("LINE", "ARC"):
+                add("vegetation", g)  # hedge lines; closed outlines became planting beds above
+            continue
+        if taken_union is not None and taken_union.contains(mid):
+            continue  # a building edge: the extruded footprint already draws it
+        add("sports" if sports_zone is not None and sports_zone.contains(mid) else "site", g)
 
-    w = maxx - minx
-    d = maxy - miny
+    # --- routing obstacles: buildings, sports areas and the pond, inflated by the walking clearance
+    nav_obstacles = []
+    for oid, shape in [*zip(taken_ids, taken), *zip(sports_ids, sports_shapes), *([("pond-1", pond_shape)] if pond_shape is not None else [])]:
+        infl = shape.buffer(WALK_CLEARANCE, join_style="mitre", mitre_limit=2.0).simplify(0.4)
+        nav_obstacles.append({"id": oid, "ring": ring(infl)})
+
+    bounds = hull.bounds
     layout = {
         "isDemo": False,
         "source": {
             "kind": "cad",
-            "note": "پلان محوطه از فایل CAD ارائه‌شده توسط مالک پروژه استخراج شده است. نام و توضیح ساختمان‌ها طبق جدول ارائه‌شده توسط مالک پروژه است و هنوز توسط دانشگاه تأیید رسمی نشده. ارتفاع ساختمان‌ها در نقشه نیست و فقط برای نمایش و بر اساس تعداد طبقات تخمین زده شده است.",
+            "note": "پلان محوطه از فایل CAD ارائه‌شده توسط مالک پروژه استخراج شده است. نام و توضیح ساختمان‌ها طبق جدول ارائه‌شده توسط مالک پروژه است و هنوز توسط دانشگاه تأیید رسمی نشده. ارتفاع ساختمان‌ها در نقشه نیست و فقط برای نمایش و بر اساس تعداد طبقات تخمین زده شده است. درخت‌ها، الاچیق‌ها و موقعیت و اندازهٔ حوض نمادین‌اند و از نقشه نیامده‌اند.",
         },
-        "ground": {"width": r2(w), "depth": r2(d)},
+        "ground": {"width": r2(bounds[2] - bounds[0]), "depth": r2(bounds[3] - bounds[1]), "outline": ring(hull)},
         "buildings": buildings,
+        "areas": areas,
+        "ponds": ponds,
+        "props": props,
         "entrances": [
-            {"id": f"campus-entrance-{i + 1}", "label": "درب ورود", "x": r2(px - (cx - ox)), "z": r2(-(py - (cy - oy)))}
-            for i, (px, py) in enumerate(sorted(entrances))
+            {"id": f"campus-entrance-{i + 1}", "label": "درب ورود", **to_c(px, py)}
+            for i, (px, py) in enumerate(sorted(entrance_pts))
         ],
         "linework": [{"kind": k, "polylines": v} for k, v in groups.items() if v],
+        "nav": {"clearance": WALK_CLEARANCE, "obstacles": nav_obstacles},
         "paths": [],
-        "trees": [],
+        "trees": trees,
     }
     OUT.write_text(json.dumps(layout, ensure_ascii=False, separators=(",", ":")) + "\n")
     n_fp = sum(1 for b in buildings if b["kind"] == "building")
-    print(f"wrote {OUT.relative_to(ROOT)}: {n_fp} footprints, {len(buildings) - n_fp} markers, "
-          f"{sum(len(g['polylines']) for g in layout['linework'])} polylines, {len(entrances)} entrances, {OUT.stat().st_size // 1024} KB")
+    print(f"wrote {OUT.relative_to(ROOT)}: {n_fp} footprints, {len(buildings) - n_fp} markers, {len(areas)} areas, {len(trees)} trees, "
+          f"{len(props)} gazebos, {sum(len(g['polylines']) for g in layout['linework'])} polylines, {len(entrance_pts)} entrances, {OUT.stat().st_size // 1024} KB")
 
 
 if __name__ == "__main__":

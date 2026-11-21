@@ -26,6 +26,7 @@ export default function CampusViewer(props: CampusSceneProps) {
         {support === "ok" && (
           <Canvas
             orthographic
+            shadows
             dpr={[1, props.preview ? 1.5 : 1.75]}
             frameloop={props.preview ? "always" : "demand"}
             gl={{ antialias: true, powerPreference: "high-performance" }}

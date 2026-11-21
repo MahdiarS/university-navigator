@@ -113,7 +113,7 @@ The 3D campus (`/campus`, home-page preview) is built from a **site plan**, not 
    npm install --no-save @mlightcad/libredwg-web
    node scripts/cad/dwg-dump.mjs /path/to/campus.dwg /path/outside/repo/campus-parsed.json
    ```
-3. Put the owner-supplied legend in `scripts/cad/campus-legend.json` (number → name, description, number of floors, and `"footprint": false` for numbers whose outline is not closed in the drawing).
+3. Put the owner-supplied legend in `scripts/cad/campus-legend.json` (number → name, description, number of floors; `"footprint": true` forces a building to be built from its drawn outline even if that outline is open, and `"footprint": false` keeps a number as a pin). The `features` block anchors the green area (park), the sports pitch and the small court on the plan.
 4. Build the layout (`pip install shapely` once):
    ```bash
    python3 scripts/cad/build_campus.py /path/outside/repo/campus-parsed.json
@@ -121,13 +121,16 @@ The 3D campus (`/campus`, home-page preview) is built from a **site plan**, not 
 
 What the script does, and what it deliberately does not do:
 
-- **Footprints** are the *closed outlines drawn in the DWG*. Small gaps (up to about 2.5 m) are closed by a buffer-and-shrink step. A number with no closed outline becomes a **pin marker**; no shape is ever guessed.
+- **Footprints** are the *outlines drawn in the DWG*. The smallest closed face containing the building's number is used; small gaps (0.3 / 1 / 2.5 m) are closed by a buffer-and-shrink step. If an outline is **open** (the prayer room, 7, was drawn this way), the script closes the polyline by joining its end back to its start (only when the gap is ≤ 25 m and the result has a plausible area). A number with no outline at all becomes a **pin marker**; no shape is ever guessed. Each building also gets a `trim` outline 0.25 m outside its walls (used for the glazing bands, plinth and cornice).
+- **Ground**: `ground.outline` is the convex hull of the drawing (+6 m) and is the lawn slab's edge. `areas` holds the park («محوطه سبز», the large green space between buildings 11 and 13 with the pond), the sports pitch, the small court and the planting beds.
 - **Coordinates** are re-centred on the middle of the drawing; the UTM georeference is dropped. The shared convention applies: meters, X east, **Z south** (Z = −northing), Y up.
 - **Heights are not in a site plan.** `size.height` = floors from the legend × 3.6 m, flagged `heightIsEstimate: true`. Unknown floor counts are drawn as one storey and shown as "ثبت نشده".
 - **Context lines** (vegetation, sports pitch, site/parcel lines) are simplified to 0.25 m and stored as flat polylines; building edges are skipped because the extrusion already draws them.
-- **Entrances** come from the "درب ورود" text in the drawing.
+- **Entrances** come from the "درب ورود" text in the drawing; they are the start of every campus walking route.
+- **Decorative, not surveyed** (all flagged `decorative: true` or described in `source.note`): the **pond** (placed in the middle of the park, long axis along the park, symbolic size), the **trees** (≤ 260, seeded so the scene is identical on every load; kept out of buildings, courts, the pond and the paved apron) and the four **gazebos**. Replace them with surveyed positions by editing the generated JSON or extending the script.
+- **Routing obstacles** (`nav.obstacles`): every building, the pitch, the court and the pond, inflated by 1.5 m (`WALK_CLEARANCE`). The campus router (`src/lib/navigation/campus-route.ts`) finds the shortest path around them.
 
-Numbers 7, 10 and 11 (and the unnamed 12–15) have no closed outline in the first plan, so they appear as pins. Supply their outlines (or a corrected DWG) and re-run the steps to extrude them. Run `npx vitest run tests/model/campus.test.ts` after regenerating.
+Numbers 12, 13 and 15 have no outline and no name in the legend, so they remain unnamed, unclickable pins. Building 14 is «سالن شهید چمران» (owner-supplied). Run `npx vitest run tests/model/campus.test.ts tests/navigation/campus-route.test.ts` after regenerating.
 
 The indoor demo building (`building-01`) is **independent of the campus**; no real campus building has an indoor map until its floor plans are imported (sections 1–10 above), after which its campus entry gets `slug`/`buildingId`.
 

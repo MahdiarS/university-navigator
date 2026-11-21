@@ -1,12 +1,13 @@
 "use client";
-import { Building2, Layers, Minus, Plus, RotateCcw, Ruler } from "lucide-react";
-import { useReducer, useState } from "react";
+import { Building2, DoorOpen, Footprints, Layers, Minus, Plus, RotateCcw, Ruler } from "lucide-react";
+import { useEffect, useMemo, useReducer, useState } from "react";
 import { DynamicCampusViewer } from "@/components/3d/DynamicCampusViewer";
 import { useNavigator } from "@/components/DataProvider";
 import { DemoBadge } from "@/components/ui/Badge";
 import { ButtonLink, IconButton } from "@/components/ui/Button";
 import { toPersianDigits } from "@/lib/search/normalize";
 import { campusKey, findCampusBuilding, footprintArea } from "@/lib/model/campus";
+import { campusEntrances, describeCampusRoute, entranceName, formatWalkMeters, formatWalkTime, nearestEntrance, routeFailureText, routeFromEntrance } from "@/lib/model/campus-nav";
 import { initialViewerState, viewerReducer } from "@/lib/model/viewerState";
 import { cn } from "@/lib/utils/cn";
 
@@ -22,11 +23,35 @@ export function CampusExplorer() {
   const [hovered, setHovered] = useState<string | null>(null);
   const [viewer, dispatch] = useReducer(viewerReducer, initialViewerState);
 
+  const [pickedEntrance, setPickedEntrance] = useState<string | null>(null);
+
+  const select = (key: string) => {
+    setSelected(key);
+    setPickedEntrance(null);
+  };
+
   const entry = findCampusBuilding(campus, selected);
   const indoor = entry?.slug ? lookups.buildingsBySlug.get(entry.slug) : undefined;
   const selectable = campus.buildings
     .filter((b) => b.clickable)
     .sort((a, b) => (a.number ?? 999) - (b.number ?? 999));
+  const entrances = campusEntrances(campus);
+  // the entrance chosen by the user, else the one with the shortest walk to the selected building
+  const activeEntrance = useMemo(() => {
+    if (!selected) return null;
+    return pickedEntrance ?? nearestEntrance(campus, selected)?.entranceId ?? entrances[0]?.id ?? null;
+  }, [campus, selected, pickedEntrance, entrances]);
+  const routeQuery = useMemo(() => (selected && activeEntrance ? routeFromEntrance(campus, activeEntrance, selected) : null), [campus, selected, activeEntrance]);
+  const route = routeQuery?.status === "ok" ? routeQuery.route : null;
+  const steps = routeQuery?.status === "ok" ? describeCampusRoute(campus, routeQuery) : [];
+
+  // frame the whole walk (entrance -> building) whenever the route changes
+  useEffect(() => {
+    if (!route) return;
+    const xs = route.points.map((p) => p.x);
+    const zs = route.points.map((p) => p.z);
+    dispatch({ type: "focusCamera", bounds: { min: { x: Math.min(...xs) - 15, y: 0, z: Math.min(...zs) - 15 }, max: { x: Math.max(...xs) + 15, y: 8, z: Math.max(...zs) + 15 } } });
+  }, [route]);
   const demoBuilding = data.buildings.find((b) => b.isDemo && b.isActive);
 
   return (
@@ -46,7 +71,7 @@ export function CampusExplorer() {
                 <button
                   type="button"
                   aria-pressed={selected === key}
-                  onClick={() => setSelected(key)}
+                  onClick={() => select(key)}
                   onMouseEnter={() => setHovered(key)}
                   onMouseLeave={() => setHovered(null)}
                   className={cn(
@@ -101,6 +126,53 @@ export function CampusExplorer() {
           <p className="rounded-xl bg-gray-100 p-3 text-sm leading-7 text-gray-700">هنوز ساختمانی انتخاب نشده است. روی ساختمان یا شمارهٔ آن کلیک کنید.</p>
         )}
 
+        {entry?.clickable && (
+          <section aria-label="مسیر پیاده از ورودی دانشگاه" className="space-y-3 rounded-xl border border-gray-200 p-4">
+            <h2 className="flex items-center gap-2 text-base font-bold">
+              <Footprints className="size-5 text-blue-600" aria-hidden />
+              مسیر از ورودی دانشگاه
+            </h2>
+            {entrances.length > 1 && (
+              <div role="group" aria-label="انتخاب ورودی" className="flex flex-wrap gap-2">
+                {entrances.map((e) => (
+                  <button
+                    key={e.id}
+                    type="button"
+                    aria-pressed={activeEntrance === e.id}
+                    onClick={() => setPickedEntrance(e.id)}
+                    className={cn(
+                      "flex min-h-11 items-center gap-1.5 rounded-full border px-3 text-sm transition-colors",
+                      activeEntrance === e.id ? "border-teal-600 bg-teal-600 text-white" : "border-gray-200 hover:bg-gray-50",
+                    )}
+                  >
+                    <DoorOpen className="size-4" aria-hidden />
+                    {entranceName(campus, e.id)}
+                  </button>
+                ))}
+              </div>
+            )}
+            {routeQuery && routeQuery.status !== "ok" && <p className="rounded-lg bg-gray-100 p-3 text-sm leading-7 text-gray-700">{routeFailureText(routeQuery.status)}</p>}
+            {route && (
+              <>
+                <p className="text-sm font-medium" data-testid="campus-route-summary">
+                  {formatWalkMeters(route.length)} · {formatWalkTime(route.durationSec)}
+                </p>
+                <ol className="space-y-2 text-sm leading-7" data-testid="campus-route-steps">
+                  {steps.map((st, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className={cn("mt-1.5 size-2.5 shrink-0 rounded-full", st.kind === "start" ? "bg-teal-600" : st.kind === "arrive" ? "bg-orange-500" : "bg-blue-600")} aria-hidden />
+                      <span>{st.text}</span>
+                    </li>
+                  ))}
+                </ol>
+                <p className="text-xs leading-6 text-gray-500">
+                  مسیر تقریبی است: در نقشهٔ CAD پیاده‌رو و درِ ساختمان‌ها مشخص نیست؛ فرض شده از روی محوطهٔ باز و با فاصله از ساختمان‌ها راه می‌روید و به نزدیک‌ترین ضلع ساختمان می‌رسید.
+                </p>
+              </>
+            )}
+          </section>
+        )}
+
         {campus.source && <p className="text-xs leading-6 text-gray-500">{campus.source.note}</p>}
 
         {demoBuilding && (
@@ -123,7 +195,9 @@ export function CampusExplorer() {
           selectedKey={selected}
           hoveredKey={hovered}
           onHover={setHovered}
-          onSelect={setSelected}
+          onSelect={select}
+          route={route ? { points: route.points } : null}
+          routeStartId={route ? activeEntrance : null}
           cameraCommand={viewer.cameraCommand}
         />
         <div className="absolute end-3 top-3 z-20 flex flex-col gap-2">

@@ -98,3 +98,80 @@ export function polylinesToSegmentPositions(polylines: readonly (readonly number
   }
   return out;
 }
+
+export interface XZ {
+  x: number;
+  z: number;
+}
+
+/** Vertex centroid (good enough for the small, roughly convex plan regions it is used for). */
+export function polygonCentroid(poly: readonly XZ[]): XZ {
+  let x = 0;
+  let z = 0;
+  for (const p of poly) {
+    x += p.x;
+    z += p.z;
+  }
+  return { x: x / poly.length, z: z / poly.length };
+}
+
+/** Scale a polygon about its centroid (k < 1 shrinks it: used for the shrub layer inside a planting bed). */
+export function scalePolygon(poly: readonly XZ[], k: number): XZ[] {
+  const c = polygonCentroid(poly);
+  return poly.map((p) => ({ x: c.x + (p.x - c.x) * k, z: c.z + (p.z - c.z) * k }));
+}
+
+export interface OrientedRect {
+  cx: number;
+  cz: number;
+  /** extent along the rectangle's long axis */
+  length: number;
+  width: number;
+  /** rotation about Y so a box whose long side lies along +X lines up with the rectangle */
+  angle: number;
+}
+
+/** Oriented rectangle of a (roughly rectangular) 4-point region such as a pitch or court. */
+export function orientedRect(poly: readonly XZ[]): OrientedRect {
+  const c = polygonCentroid(poly);
+  const p0 = poly[0]!;
+  const p1 = poly[1]!;
+  const p2 = poly[2]!;
+  const e0 = { x: p1.x - p0.x, z: p1.z - p0.z };
+  const e1 = { x: p2.x - p1.x, z: p2.z - p1.z };
+  const l0 = Math.hypot(e0.x, e0.z);
+  const l1 = Math.hypot(e1.x, e1.z);
+  const long = l0 >= l1 ? e0 : e1;
+  return { cx: c.x, cz: c.z, length: Math.max(l0, l1), width: Math.min(l0, l1), angle: -Math.atan2(long.z, long.x) };
+}
+
+/** Angle (rotation about Y) of the outline edge nearest to p — used to turn an entrance gate to face the boundary. */
+export function nearestEdgeAngle(outline: readonly XZ[], p: XZ): number {
+  let best = 0;
+  let bestD = Infinity;
+  for (let i = 0; i < outline.length; i++) {
+    const a = outline[i]!;
+    const b = outline[(i + 1) % outline.length]!;
+    const dx = b.x - a.x;
+    const dz = b.z - a.z;
+    const len2 = dx * dx + dz * dz || 1;
+    const t = Math.max(0, Math.min(1, ((p.x - a.x) * dx + (p.z - a.z) * dz) / len2));
+    const d = Math.hypot(p.x - (a.x + t * dx), p.z - (a.z + t * dz));
+    if (d < bestD) {
+      bestD = d;
+      best = -Math.atan2(dz, dx);
+    }
+  }
+  return best;
+}
+
+/** Flat polylines -> one rectangle per leg (see pathSegments), for raised kerbs / hedges / court lines. */
+export function polylineBoxes(polylines: readonly (readonly number[])[], width: number): PathSegment[] {
+  const out: PathSegment[] = [];
+  for (const p of polylines) {
+    const pts: XZ[] = [];
+    for (let i = 0; i + 1 < p.length; i += 2) pts.push({ x: p[i]!, z: p[i + 1]! });
+    out.push(...pathSegments(pts, width));
+  }
+  return out;
+}

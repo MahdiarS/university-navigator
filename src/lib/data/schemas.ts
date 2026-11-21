@@ -224,14 +224,43 @@ export const CampusBuildingSchema = z.object({
   entrance: xzSchema.nullable(),
   /** outline in campus meters (X east, Z south); when present the building is extruded from it */
   footprint: z.array(xzSchema).min(3).optional(),
+  /** slightly larger outline (a few cm outside the walls) used for window bands and ledges */
+  trim: z.array(xzSchema).min(3).optional(),
+});
+
+/** ground regions from the plan: park lawn, sports pitch/court, planting beds */
+export const CampusAreaSchema = z.object({
+  id: z.string(),
+  kind: z.enum(["park", "pitch", "court", "bed"]),
+  name: z.string().nullable().optional(),
+  polygon: z.array(xzSchema).min(3),
 });
 
 export const CampusSchema = z.object({
   isDemo: z.boolean(),
   /** where the layout came from; shown to users so demo and real content are never confused */
   source: z.object({ kind: z.enum(["demo", "cad"]), note: z.string() }).optional(),
-  ground: z.object({ width: z.number().positive(), depth: z.number().positive() }),
+  ground: z.object({
+    width: z.number().positive(),
+    depth: z.number().positive(),
+    /** campus boundary (hull of the drawing) — the lawn slab is cut to it */
+    outline: z.array(xzSchema).min(3).optional(),
+  }),
   buildings: z.array(CampusBuildingSchema),
+  areas: z.array(CampusAreaSchema).optional(),
+  /** the pond in the green area; size is symbolic (the plan has no water outline) */
+  ponds: z
+    .array(z.object({ id: z.string(), x: z.number(), z: z.number(), rx: z.number().positive(), rz: z.number().positive(), angle: z.number(), decorative: z.boolean().optional() }))
+    .optional(),
+  /** decorative props (gazebos) — placed symbolically, not surveyed */
+  props: z.array(z.object({ id: z.string(), kind: z.enum(["gazebo"]), x: z.number(), z: z.number(), angle: z.number(), decorative: z.boolean().optional() })).optional(),
+  /** pedestrian routing data: obstacle rings (already inflated by the walking clearance) */
+  nav: z
+    .object({
+      clearance: z.number().nonnegative(),
+      obstacles: z.array(z.object({ id: z.string(), ring: z.array(xzSchema).min(3) })),
+    })
+    .optional(),
   entrances: z.array(z.object({ id: z.string(), label: z.string(), x: z.number(), z: z.number() })).optional(),
   /** flat context lines on the ground; each polyline is a flat [x0, z0, x1, z1, ...] array */
   linework: z
@@ -244,7 +273,7 @@ export const CampusSchema = z.object({
       width: z.number().positive(),
     }),
   ),
-  trees: z.array(xzSchema),
+  trees: z.array(xzSchema.extend({ kind: z.enum(["round", "pine"]).optional(), scale: z.number().positive().optional() })),
 });
 
 export const ModelManifestSchema = z.object({
