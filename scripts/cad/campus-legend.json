@@ -131,6 +131,26 @@
       ],
       "radius": 14,
       "name": "زمین ورزشی کوچک"
-    }
+    },
+    "removeEntrances": [
+      [
+        206.3,
+        139.3,
+        20
+      ]
+    ],
+    "gazebos": [
+      {
+        "shape": "square",
+        "anchor": [
+          52,
+          7
+        ],
+        "size": 3.2,
+        "angleDeg": 11.7,
+        "note": "marked by the owner on a screenshot (south-west corner); not drawn in the DWG"
+      }
+    ],
+    "_note2": "removeEntrances: [x, y, radius] in drawing-local meters; the owner removed the north-east gate. gazebos: extra gazebos the owner marked that are not in the DWG."
   }
 }

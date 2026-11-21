@@ -95,6 +95,6 @@ The demo graph is tested to have no integrity errors and to be fully connected. 
 
 - **Model.** A visibility graph over the corners of the obstacle rings (`campus.nav.obstacles`: buildings, pitch, court, pond, already inflated by 1.5 m). A segment is allowed when it does not pass through any obstacle interior (touching or running along an outline is fine). Dijkstra runs over the corners plus the start and sampled points (every 2.5 m) on the target's outline.
 - **Goal.** If a building has an `entrance` point it is used; otherwise the route ends at the **nearest point on the building's outline** (the plan has no doors). The arrival point is returned (`route.arrival`) so a later indoor route can start from the building's real door.
-- **Defaults.** The UI starts from the entrance with the shortest walk and lets the user switch entrance. Walking speed is 1.3 m/s.
+- **Defaults.** The UI starts from the entrance with the shortest walk (and shows an entrance switcher only when the plan has more than one; today it has one). Walking speed is 1.3 m/s.
 - **Steps.** Each leg is described by the corner it heads for («تا گوشهٔ ساختمان ۶»); turns use the same left/right threshold as indoor directions; legs shorter than 4 m are folded into their neighbour.
 - **Limits.** Routes are approximate: the plan has no footpaths, stairs, fences or door positions, so open ground is assumed walkable. Two buildings closer than about 3 m are treated as touching (clearance on both sides). If a walkway or door is drawn later, add it to the layout and the route will follow.

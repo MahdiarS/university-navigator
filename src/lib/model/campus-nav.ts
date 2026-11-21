@@ -47,6 +47,8 @@ export function obstacleName(campus: Campus, obstacleId: string): string {
   const a = campus.areas?.find((x) => x.id === obstacleId);
   if (a) return a.name ?? "محوطه";
   if (campus.ponds?.some((p) => p.id === obstacleId)) return "حوض";
+  if (obstacleId.startsWith("outside")) return "مرز محوطه";
+  if (campus.props?.some((p) => p.id === obstacleId)) return "الاچیق";
   return "مانع";
 }
 

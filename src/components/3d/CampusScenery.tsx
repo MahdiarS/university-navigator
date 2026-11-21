@@ -81,6 +81,40 @@ function grassTexture(base: string, light: string, dark: string, seed: number): 
   return tex;
 }
 
+/** Tileable pavement: 8 x 8 pavers with slightly different tones and thin joints (1 tile = 8 m of ground). */
+function pavingTexture(seed: number): CanvasTexture | null {
+  if (typeof document === "undefined") return null;
+  const size = 256;
+  const canvas = document.createElement("canvas");
+  canvas.width = canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return null;
+  const r = rnd(seed);
+  const cell = size / 8;
+  for (let i = 0; i < 8; i++) {
+    for (let j = 0; j < 8; j++) {
+      const v = 206 + Math.floor(r() * 16);
+      ctx.fillStyle = `rgb(${v},${v - 3},${v - 10})`;
+      ctx.fillRect(i * cell, j * cell, cell, cell);
+    }
+  }
+  ctx.strokeStyle = "rgba(120,114,104,0.55)";
+  ctx.lineWidth = 1.5;
+  for (let k = 0; k <= 8; k++) {
+    ctx.beginPath();
+    ctx.moveTo(k * cell, 0);
+    ctx.lineTo(k * cell, size);
+    ctx.moveTo(0, k * cell);
+    ctx.lineTo(size, k * cell);
+    ctx.stroke();
+  }
+  const tex = new CanvasTexture(canvas);
+  tex.wrapS = tex.wrapT = RepeatWrapping;
+  tex.colorSpace = SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+
 const shapeOf = (poly: readonly XZ[]) => new Shape(footprintShapePoints(poly).map(([x, y]) => new Vector2(x, y)));
 const extrude = (poly: readonly XZ[], depth: number) => new ExtrudeGeometry(shapeOf(poly), { depth, bevelEnabled: false });
 const none = () => null;
@@ -95,12 +129,12 @@ interface Layer {
 }
 
 function makeMats() {
-  const lawn = grassTexture("#9fcb7a", "#b6dd8f", "#7fae5f", 11);
+  const paving = pavingTexture(11);
   const park = grassTexture("#7fb35f", "#98c978", "#639848", 23);
-  lawn?.repeat.set(1 / 10, 1 / 10);
+  paving?.repeat.set(1 / 8, 1 / 8);
   park?.repeat.set(1 / 8, 1 / 8);
   return {
-    lawn: mat(lawn ? "#ffffff" : "#a9d283", { map: lawn }),
+    paving: mat(paving ? "#ffffff" : "#d4d1c8", { map: paving, roughness: 0.95 }),
     park: mat(park ? "#ffffff" : "#86bb66", { map: park }),
     soil: mat("#8a6f55"),
     rock: mat("#6f6558"),
@@ -180,7 +214,7 @@ export function CampusScenery({ campus }: { campus: Campus }) {
         depth: 1.2,
         bevelEnabled: false,
       }),
-      rock: new ExtrudeGeometry(shapeOf(scalePolygon(poly, 0.97)), {
+      rock: new ExtrudeGeometry(shapeOf(poly), {
         depth: 1.4,
         bevelEnabled: false,
       }),
@@ -199,7 +233,7 @@ export function CampusScenery({ campus }: { campus: Campus }) {
   const layers = useMemo(() => {
     const out: Layer[] = [];
     for (const a of campus.areas ?? []) {
-      if (a.kind === "park") {
+      if (a.kind === "park" || a.kind === "lawn") {
         out.push({
           key: a.id,
           geo: extrude(a.polygon, 0.14),
@@ -258,7 +292,7 @@ export function CampusScenery({ campus }: { campus: Campus }) {
 
   return (
     <group name="campus-scenery">
-      {/* diorama base: rock, soil, then the lawn slab with its grass top */}
+      {/* diorama base: rock, soil, then the paved ground slab; green only where the plan shows vegetation */}
       <mesh
         geometry={ground.rock}
         material={mats.rock}
@@ -277,7 +311,7 @@ export function CampusScenery({ campus }: { campus: Campus }) {
       />
       <mesh
         geometry={ground.grass}
-        material={[mats.lawn, mats.soil]}
+        material={[mats.paving, mats.soil]}
         rotation={[-Math.PI / 2, 0, 0]}
         position={[0, -0.5, 0]}
         receiveShadow
@@ -309,7 +343,7 @@ export function CampusScenery({ campus }: { campus: Campus }) {
       {(campus.props ?? [])
         .filter((p) => p.kind === "gazebo")
         .map((p) => (
-          <Gazebo key={p.id} x={p.x} z={p.z} angle={p.angle} mats={mats} />
+          <Gazebo key={p.id} x={p.x} z={p.z} angle={p.angle} shape={p.shape} size={p.size} mats={mats} />
         ))}
       {(campus.entrances ?? []).map((e) => (
         <Gate key={e.id} x={e.x} z={e.z} angle={nearestEdgeAngle(ground.poly, e)} mats={mats} />
@@ -538,29 +572,38 @@ function Pond({ pond, mats }: { pond: NonNullable<Campus["ponds"]>[number]; mats
   );
 }
 
-function Gazebo({ x, z, angle, mats }: { x: number; z: number; angle: number; mats: Mats }) {
+/** Round (cylinder platform, 8 posts, round roof) or square (box platform, 4 corner posts, pyramid roof) gazebo. */
+function Gazebo({ x, z, angle, shape, size, mats }: { x: number; z: number; angle: number; shape: "round" | "square"; size: number; mats: Mats }) {
+  const round = shape === "round";
+  const n = round ? 8 : 4;
+  const reach = round ? size * 0.86 : size * 0.86 * Math.SQRT2;
   const posts = useMemo(
     () =>
-      Array.from({ length: 6 }, (_, i) => ({
-        x: Math.cos((i / 6) * Math.PI * 2) * 2.7,
-        z: Math.sin((i / 6) * Math.PI * 2) * 2.7,
-      })),
-    [],
+      Array.from({ length: n }, (_, i) => {
+        const a = round ? (i / n) * Math.PI * 2 : ((i + 0.5) / n) * Math.PI * 2;
+        return { x: Math.cos(a) * reach, z: Math.sin(a) * reach };
+      }),
+    [n, reach, round],
   );
+  const roofR = round ? size * 1.12 : size * 1.55;
   return (
-    <group position={[x, 0.14, z]} rotation={[0, angle, 0]} name="campus-gazebo">
-      <mesh material={mats.stone} position={[0, 0.2, 0]} castShadow receiveShadow raycast={none}>
-        <cylinderGeometry args={[3.5, 3.7, 0.4, 6]} />
-      </mesh>
+    <group position={[x, 0.14, z]} rotation={[0, angle, 0]} name={`campus-gazebo-${shape}`}>
+      {round ? (
+        <mesh material={mats.stone} position={[0, 0.2, 0]} castShadow receiveShadow raycast={none}>
+          <cylinderGeometry args={[size, size + 0.25, 0.4, 28]} />
+        </mesh>
+      ) : (
+        <mesh geometry={mats.unit} material={mats.stone} position={[0, 0.2, 0]} scale={[size * 2 + 0.6, 0.4, size * 2 + 0.6]} castShadow receiveShadow raycast={none} />
+      )}
       {posts.map((p, i) => (
         <mesh key={i} material={mats.wood} position={[p.x, 1.7, p.z]} castShadow raycast={none}>
-          <cylinderGeometry args={[0.13, 0.13, 2.6, 8]} />
+          <cylinderGeometry args={[0.14, 0.14, 2.6, 8]} />
         </mesh>
       ))}
-      {/* low rail + bench ring segments between posts */}
+      {/* low rails between the posts, one side left open as the entrance */}
       {posts.map((p, i) => {
+        if (i === 0) return null;
         const q = posts[(i + 1) % posts.length]!;
-        if (i === 0) return null; // open side = the entrance
         const len = Math.hypot(q.x - p.x, q.z - p.z);
         return (
           <mesh
@@ -575,8 +618,8 @@ function Gazebo({ x, z, angle, mats }: { x: number; z: number; angle: number; ma
           />
         );
       })}
-      <mesh material={mats.roof} position={[0, 3.9, 0]} rotation={[0, Math.PI / 6, 0]} castShadow raycast={none}>
-        <coneGeometry args={[4.4, 2, 6]} />
+      <mesh material={mats.roof} position={[0, 3.9, 0]} rotation={[0, round ? 0 : Math.PI / 4, 0]} castShadow raycast={none}>
+        <coneGeometry args={[roofR, 2, round ? 24 : 4]} />
       </mesh>
       <mesh material={mats.wood} position={[0, 5.1, 0]} castShadow raycast={none}>
         <sphereGeometry args={[0.22, 10, 8]} />

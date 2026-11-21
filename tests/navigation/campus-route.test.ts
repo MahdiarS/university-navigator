@@ -97,10 +97,10 @@ describe("real campus: routes start at the university entrance", () => {
   const buildings = campus.buildings.filter((b) => b.clickable);
   const obstacles = campus.nav!.obstacles;
 
-  it("has two entrances and obstacles for every extruded building, the pitch, the court and the pond", () => {
-    expect(campusEntrances(campus)).toHaveLength(2);
-    expect(entranceName(campus, "campus-entrance-1")).toBe("درب ورود ۱");
-    expect(entranceName(campus, "campus-entrance-2")).toBe("درب ورود ۲");
+  it("has the one remaining entrance and obstacles for every extruded building, the pitch, the court, gazebos and the pond", () => {
+    expect(campusEntrances(campus)).toHaveLength(1);
+    expect(entranceName(campus, "campus-entrance-1")).toBe("درب ورود");
+    for (const g of campus.props!) expect(obstacles.some((o) => o.id === g.id)).toBe(true);
     for (const b of buildings) expect(obstacles.some((o) => o.id === b.id)).toBe(true);
     for (const id of ["area-pitch", "area-court", "pond-1"]) expect(obstacles.some((o) => o.id === id)).toBe(true);
   });
@@ -126,15 +126,20 @@ describe("real campus: routes start at the university entrance", () => {
     });
   }
 
-  it("prefers the nearer entrance and the choice flips between buildings on opposite sides", () => {
-    const near = (n: number) => nearestEntrance(campus, campus.buildings.find((b) => b.number === n)!.id!)!;
-    // building 5 (classes) is next to the south-east gate (entrance 2); 11 (workshops) is far west and is closer from entrance 1
-    expect(near(5).entranceId).toBe("campus-entrance-2");
-    expect(near(11).entranceId).toBe("campus-entrance-1");
-    const d1 = routeFromEntrance(campus, "campus-entrance-1", campus.buildings.find((b) => b.number === 5)!.id!);
-    const d2 = routeFromEntrance(campus, "campus-entrance-2", campus.buildings.find((b) => b.number === 5)!.id!);
-    if (d1.status !== "ok" || d2.status !== "ok") throw new Error("no route");
-    expect(d2.route.length).toBeLessThan(d1.route.length);
+  it("never routes through land outside the property line (north-east notch)", () => {
+    const b6 = campus.buildings.find((b) => b.number === 6)!;
+    const q = routeFromEntrance(campus, "campus-entrance-1", b6.id!);
+    if (q.status !== "ok") throw new Error(q.status);
+    for (const p of q.route.points)
+      for (const o of obstacles.filter((x) => x.id.startsWith("outside"))) expect(strictlyInside(p, o.ring)).toBe(false);
+    for (const leg of q.route.legs) {
+      for (const o of obstacles.filter((x) => x.id.startsWith("outside")))
+        expect(segmentCrossesInterior(leg.from, leg.to, o.ring)).toBe(false);
+    }
+  });
+
+  it("the single entrance is the start for every building, and nearestEntrance returns it", () => {
+    for (const b of buildings) expect(nearestEntrance(campus, b.id!)?.entranceId).toBe("campus-entrance-1");
   });
 
   it("writes Persian steps: start at the entrance, no sub-4 m legs, ends with the arrival", () => {
@@ -142,7 +147,7 @@ describe("real campus: routes start at the university entrance", () => {
       const q = routeFromEntrance(campus, "campus-entrance-1", b.id!);
       if (q.status !== "ok") throw new Error(q.status);
       const steps = describeCampusRoute(campus, q);
-      expect(steps[0]).toMatchObject({ kind: "start", text: "شروع از درب ورود ۱ دانشگاه" });
+      expect(steps[0]).toMatchObject({ kind: "start", text: "شروع از درب ورود دانشگاه" });
       expect(steps.at(-1)).toMatchObject({ kind: "arrive" });
       expect(steps.at(-1)!.text).toContain(b.label);
       expect(steps.length).toBeGreaterThanOrEqual(3);

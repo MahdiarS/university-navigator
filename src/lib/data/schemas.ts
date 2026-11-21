@@ -231,7 +231,7 @@ export const CampusBuildingSchema = z.object({
 /** ground regions from the plan: park lawn, sports pitch/court, planting beds */
 export const CampusAreaSchema = z.object({
   id: z.string(),
-  kind: z.enum(["park", "pitch", "court", "bed"]),
+  kind: z.enum(["park", "pitch", "court", "bed", "lawn"]),
   name: z.string().nullable().optional(),
   polygon: z.array(xzSchema).min(3),
 });
@@ -252,8 +252,22 @@ export const CampusSchema = z.object({
   ponds: z
     .array(z.object({ id: z.string(), x: z.number(), z: z.number(), rx: z.number().positive(), rz: z.number().positive(), angle: z.number(), decorative: z.boolean().optional() }))
     .optional(),
-  /** decorative props (gazebos) — placed symbolically, not surveyed */
-  props: z.array(z.object({ id: z.string(), kind: z.enum(["gazebo"]), x: z.number(), z: z.number(), angle: z.number(), decorative: z.boolean().optional() })).optional(),
+  /** gazebos: from the plan's hexagon/diamond symbols and the owner's marking (`source`); `size` = radius (round) or half-width (square) in meters */
+  props: z
+    .array(
+      z.object({
+        id: z.string(),
+        kind: z.enum(["gazebo"]),
+        shape: z.enum(["round", "square"]).default("round"),
+        size: z.number().positive().default(3.5),
+        x: z.number(),
+        z: z.number(),
+        angle: z.number(),
+        source: z.enum(["plan", "owner"]).optional(),
+        decorative: z.boolean().optional(),
+      }),
+    )
+    .optional(),
   /** pedestrian routing data: obstacle rings (already inflated by the walking clearance) */
   nav: z
     .object({

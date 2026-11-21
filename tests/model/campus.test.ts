@@ -68,7 +68,7 @@ describe("campus site-plan layout (data/campus/campus-layout.json)", () => {
     expect(campus.nav!.obstacles.some((o) => o.id === b7.id)).toBe(true);
   });
 
-  it("has the green area with a pond in the middle, pitch, court, gazebos and trees (decorative ones flagged)", () => {
+  it("has the green area with a pond in the middle, pitch, court, plan gazebos and trees", () => {
     const park = campus.areas!.find((a) => a.kind === "park")!;
     expect(park.name).toBe("محوطه سبز");
     expect(campus.areas!.some((a) => a.kind === "pitch")).toBe(true);
@@ -82,12 +82,53 @@ describe("campus site-plan layout (data/campus/campus-layout.json)", () => {
     // the park lies between buildings 11 and 13's marker, i.e. it is the big gap the owner described
     const b11 = campus.buildings.find((b) => b.number === 11)!;
     expect(Math.hypot(c.x - b11.position.x, c.z - b11.position.z)).toBeLessThan(80);
-    expect(campus.props!.filter((p) => p.kind === "gazebo").length).toBeGreaterThanOrEqual(2);
-    expect(campus.props!.every((p) => p.decorative)).toBe(true);
-    expect(campus.trees.length).toBeGreaterThan(100);
     expect(campus.trees.some((t) => t.kind === "pine")).toBe(true);
     expect(campus.trees.some((t) => t.kind !== "pine")).toBe(true);
     expect(campus.source!.note).toContain("نمادین");
+  });
+
+  it("has the three gazebos the owner pointed out: round one (hexagon on the plan) and two square ones", () => {
+    const g = campus.props!;
+    expect(g).toHaveLength(3);
+    expect(g.filter((p) => p.shape === "round")).toHaveLength(1);
+    expect(g.filter((p) => p.shape === "square")).toHaveLength(2);
+    expect(g.filter((p) => p.source === "plan")).toHaveLength(2);
+    expect(g.filter((p) => p.source === "owner")).toHaveLength(1);
+    // marked positions (world meters; checked against the owner's screenshot markings, +- 3 m)
+    const near = (p: { x: number; z: number }, x: number, z: number) => Math.hypot(p.x - x, p.z - z) < 4;
+    expect(g.some((p) => p.shape === "round" && near(p, 64, 68))).toBe(true);
+    expect(g.some((p) => p.shape === "square" && near(p, 41, 99))).toBe(true);
+    expect(g.some((p) => p.shape === "square" && near(p, -66, 124))).toBe(true);
+    // the gazebo on the plan's round shape sits on lawn, not in a shrub bed
+    expect(campus.areas!.some((a) => a.kind === "lawn")).toBe(true);
+  });
+
+  it("ground follows the property boundary: the notch and the strip east of the gate are not campus", () => {
+    const outline = campus.ground.outline!;
+    // north-east notch (empty land inside the old convex hull), east strip beyond the boundary line
+    expect(strictlyInside({ x: 40, z: -80 }, outline)).toBe(false);
+    expect(strictlyInside({ x: 110, z: 30 }, outline)).toBe(false);
+    // a point in the middle of the campus is inside
+    expect(strictlyInside({ x: 20, z: 60 }, outline)).toBe(true);
+    for (const b of campus.buildings) expect(strictlyInside(b.position, outline) || !b.footprint).toBe(true);
+    // the remaining gate is on (just inside) the boundary, so routes start on campus ground
+    const e = campus.entrances![0]!;
+    expect(strictlyInside(e, outline)).toBe(true);
+    // non-walkable pockets of the old hull are routing obstacles
+    expect(campus.nav!.obstacles.filter((o) => o.id.startsWith("outside")).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it("puts trees only where the plan marks vegetation (planting beds and the park), never in the grey plots", () => {
+    const green = campus.areas!.filter((a) => a.kind === "park" || a.kind === "bed");
+    expect(campus.trees.length).toBeGreaterThan(50);
+    for (const t of campus.trees) {
+      expect(
+        green.some((a) => strictlyInside(t, a.polygon) || a.polygon.some((p) => Math.hypot(p.x - t.x, p.z - t.z) < 4)),
+        `tree ${t.x},${t.z}`,
+      ).toBe(true);
+    }
+    // the grey plots in the north (labels 12 and 13, z < -85) get no trees at all
+    expect(campus.trees.filter((t) => t.z < -85)).toHaveLength(0);
   });
 
   it("never plants a tree, gazebo or the pond inside a building footprint", () => {
@@ -115,7 +156,8 @@ describe("campus site-plan layout (data/campus/campus-layout.json)", () => {
       expect(Math.abs(b.position.x)).toBeLessThan(limit);
       expect(Math.abs(b.position.z)).toBeLessThan(limit);
     }
-    expect(campus.entrances).toHaveLength(2);
+    // the owner removed the north-east gate: one entrance remains
+    expect(campus.entrances).toHaveLength(1);
     expect(campus.ground.outline!.length).toBeGreaterThanOrEqual(3);
   });
 });

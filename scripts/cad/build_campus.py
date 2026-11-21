@@ -31,7 +31,7 @@ from pathlib import Path
 
 from shapely import affinity
 from shapely.geometry import LineString, MultiPoint, Point, Polygon
-from shapely.ops import unary_union
+from shapely.ops import nearest_points, unary_union
 from shapely.prepared import prep
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -227,10 +227,23 @@ def main(parsed_path: str) -> None:
                 e2["size"] = {"width": 6.0, "depth": 6.0, "height": 1.0}
                 buildings.append(e2)
 
-    # --- ground outline: hull of the whole drawing, slightly enlarged (a base the scene stands on)
+    # --- ground outline: the property boundary drawn in the plan (layer C-HYDR-CTCH-HDPT, the long closed polyline).
+    # The campus is NOT convex (a notch at the north-east), so the old convex hull wrongly added empty land.
+    boundary = [
+        [(p["x"] - ox, p["y"] - oy) for p in e["vertices"]]
+        for e in ents
+        if e["type"] == "LWPOLYLINE" and e["layer"] == "C-HYDR-CTCH-HDPT" and len(e["vertices"]) >= 8
+    ]
     all_pts = [pt for _, g in linear for pt in g.coords]
-    hull = MultiPoint(all_pts).convex_hull.buffer(6, join_style="mitre")
+    if boundary:
+        hull = Polygon(max(boundary, key=len)).buffer(0)
+    else:
+        print("WARNING: no property boundary in the drawing; using the convex hull", file=sys.stderr)
+        hull = MultiPoint(all_pts).convex_hull.buffer(6, join_style="mitre")
     hull_p = prep(hull)
+    # pockets = land inside the convex hull but outside the boundary: pedestrians cannot walk there (routing obstacles)
+    gap = MultiPoint(list(hull.exterior.coords)).convex_hull.difference(hull)
+    pockets = [g for g in ([gap] if gap.geom_type == "Polygon" else list(getattr(gap, "geoms", []))) if g.geom_type == "Polygon" and g.area > 2]
 
     # --- regions measured on the plot (anchors in legend.features, drawing-local meters)
     feats = legend["features"]
@@ -290,14 +303,44 @@ def main(parsed_path: str) -> None:
         pond_shape = affinity.rotate(affinity.scale(Point(pc.x, pc.y).buffer(1, 32), a, b), math.degrees(theta), origin=(pc.x, pc.y))
         obstacles.append(pond_shape)
 
-    # --- decorative trees and gazebos (seeded, deterministic)
+    # --- gazebos: the plan draws a hexagon (round gazebo) and a rotated square (square gazebo) on layer C-SSWR-PROF; the
+    # owner marked a third (square) in the south-west corner. Positions come from the plan / the owner, not from us.
+    props: list[dict] = []
+    gazebo_shapes: list[Polygon] = []
+
+    def add_gazebo(shape: str, cx: float, cy: float, size: float, angle: float, source: str, poly: Polygon | None = None):
+        c = to_c(cx, cy)
+        props.append({"id": f"gazebo-{len(props) + 1}", "kind": "gazebo", "shape": shape, "x": c["x"], "z": c["z"], "angle": r2(angle), "size": r2(size), "source": source})
+        gazebo_shapes.append(poly if poly is not None else Point(cx, cy).buffer(size * (1.0 if shape == "round" else 1.42), 16))
+
+    for e in ents:
+        if e["type"] != "LWPOLYLINE" or e["layer"] != "C-SSWR-PROF":
+            continue
+        v = [(p["x"] - ox, p["y"] - oy) for p in e["vertices"]]
+        pg = Polygon(v)
+        c = pg.centroid
+        rad = sum(math.hypot(x - c.x, y - c.y) for x, y in v) / len(v)
+        if len(v) == 4:  # diamond on the plan = square gazebo turned to the street grid
+            add_gazebo("square", c.x, c.y, rad / math.sqrt(2), math.atan2(v[1][1] - v[0][1], v[1][0] - v[0][0]), "plan", pg)
+        elif len(v) >= 5:  # hexagon = round gazebo
+            add_gazebo("round", c.x, c.y, rad, 0.0, "plan", pg)
+    for g in feats.get("gazebos", []):
+        add_gazebo(g["shape"], g["anchor"][0], g["anchor"][1], g["size"], math.radians(g.get("angleDeg", 0)), "owner")
+
+    # beds that contain a gazebo become lawn (the gazebo stands on grass, no shrubs/trees)
+    for area in areas:
+        if area["kind"] == "bed" and any(Polygon([(p["x"] + shx, shy - p["z"]) for p in area["polygon"]]).intersects(gz) for gz in gazebo_shapes):
+            area["kind"] = "lawn"
+
+    # --- decorative trees (seeded, deterministic). The owner: trees/greenery ONLY where the plan marks vegetation
+    # (planting beds and the park); everywhere else stays paved, including the grey plots in the north.
     rnd = random.Random(SEED)
-    free = prep(unary_union([o.buffer(3.0) for o in obstacles]))
+    keep_out = prep(unary_union([o.buffer(2.5) for o in [*obstacles, *gazebo_shapes]]))
     placed: list[tuple[float, float]] = []
     trees: list[dict] = []
 
     def ok(x, y, gap):
-        if not hull_p.contains(Point(x, y).buffer(3)) or free.contains(Point(x, y)):
+        if keep_out.contains(Point(x, y)):
             return False
         return all(math.hypot(x - qx, y - qy) >= gap for qx, qy in placed)
 
@@ -318,7 +361,15 @@ def main(parsed_path: str) -> None:
             pt = edge.interpolate(i * 9 + rnd.uniform(-1, 1))
             if ok(pt.x, pt.y, 5) and not pond_shape.buffer(4).contains(pt):
                 add_tree(pt.x, pt.y)
-    for bd in beds:  # shrubs/trees inside the planting beds
+        for _ in range(400):  # a few more on the park lawn
+            if len(trees) >= 60:
+                break
+            x0, y0, x1, y1 = park.bounds
+            x, y = rnd.uniform(x0, x1), rnd.uniform(y0, y1)
+            if park.buffer(-3).contains(Point(x, y)) and not pond_shape.buffer(5).contains(Point(x, y)) and ok(x, y, 7):
+                add_tree(x, y)
+    for area in [a_ for a_ in areas if a_["kind"] == "bed"]:
+        bd = Polygon([(p["x"] + shx, shy - p["z"]) for p in area["polygon"]])
         x0, y0, x1, y1 = bd.bounds
         for _ in range(int(bd.area // 40) + 1):
             for _try in range(20):
@@ -326,44 +377,6 @@ def main(parsed_path: str) -> None:
                 if bd.contains(Point(x, y)) and all(math.hypot(x - qx, y - qy) >= 4 for qx, qy in placed):
                     add_tree(x, y, "round", rnd.uniform(0.7, 1.1))
                     break
-    x0, y0, x1, y1 = hull.bounds
-    for _ in range(6000):  # scattered lawn trees
-        if len(trees) >= MAX_TREES:
-            break
-        x, y = rnd.uniform(x0, x1), rnd.uniform(y0, y1)
-        if ok(x, y, 9):
-            add_tree(x, y)
-
-    props: list[dict] = []
-    prop_xy: list[tuple[float, float]] = []
-
-    def free_spot(ax_, ay_):
-        """nearest free point to an anchor, searching outwards in rings; keeps gazebos 12 m apart."""
-        for rad in range(4, 40, 3):
-            for k in range(16):
-                ang = 2 * math.pi * k / 16 + rnd.uniform(0, 0.3)
-                x, y = ax_ + rad * math.cos(ang), ay_ + rad * math.sin(ang)
-                if ok(x, y, 6) and all(math.hypot(x - qx, y - qy) >= 12 for qx, qy in prop_xy):
-                    return x, y
-        return None
-
-    anchors: list[tuple[float, float, bool]] = []
-    if park is not None:  # one at each end of the pond, on the lawn
-        pc = park.centroid
-        for sgn in (-1, 1):
-            anchors.append((pc.x + sgn * 0.36 * long_len * math.cos(theta), pc.y + sgn * 0.36 * long_len * math.sin(theta), True))
-    for n in (9, 3):  # next to the cafeteria and to the faculty-office/classroom block
-        b0 = next((q for q in buildings if q["number"] == n and q.get("footprint")), None)
-        if b0:
-            anchors.append((b0["position"]["x"] + shx, shy - b0["position"]["z"], False))
-    for ax_, ay_, exact in anchors:
-        spot = (ax_, ay_) if exact else free_spot(ax_, ay_)
-        if spot is None:
-            continue
-        placed.append(spot)
-        prop_xy.append(spot)
-        c = to_c(*spot)
-        props.append({"id": f"gazebo-{len(props) + 1}", "kind": "gazebo", "x": c["x"], "z": c["z"], "angle": r2(rnd.uniform(0, math.pi / 2)), "decorative": True})
 
     # --- context linework: sports markings, hedge lines, other site lines (building edges skipped)
     taken_union = unary_union([t.buffer(1.0) for t in taken]) if taken else None
@@ -375,8 +388,11 @@ def main(parsed_path: str) -> None:
         if not g.is_empty and g.length >= 0.8:
             groups[kind].append(flat(g.coords))
 
+    inside_site = prep(hull.buffer(0.5))
     for e, g in linear:
         mid = g.interpolate(0.5, normalized=True)
+        if not inside_site.contains(mid):
+            continue  # drawing symbols outside the property line (e.g. the gate arrows) are not campus ground
         if e["layer"] == VEGETATION_LAYER:
             if e["type"] in ("LINE", "ARC"):
                 add("vegetation", g)  # hedge lines; closed outlines became planting beds above
@@ -387,26 +403,37 @@ def main(parsed_path: str) -> None:
 
     # --- routing obstacles: buildings, sports areas and the pond, inflated by the walking clearance
     nav_obstacles = []
-    for oid, shape in [*zip(taken_ids, taken), *zip(sports_ids, sports_shapes), *([("pond-1", pond_shape)] if pond_shape is not None else [])]:
+    gz_ids = [p_["id"] for p_ in props]
+    for oid, shape in [*zip(taken_ids, taken), *zip(sports_ids, sports_shapes), *zip(gz_ids, gazebo_shapes), *([("pond-1", pond_shape)] if pond_shape is not None else [])]:
         infl = shape.buffer(WALK_CLEARANCE, join_style="mitre", mitre_limit=2.0).simplify(0.4)
         nav_obstacles.append({"id": oid, "ring": ring(infl)})
+    for i, pk in enumerate(pockets):  # land outside the property line (e.g. the north-east notch): not walkable
+        nav_obstacles.append({"id": f"outside-{i + 1}", "ring": ring(pk.simplify(0.3))})
+
+    # --- entrances: the owner removed the north-east gate (it opens onto land outside the campus); the remaining gate
+    # text sits just outside the boundary, so it is moved onto the boundary (1.5 m inside)
+    entrances = []
+    for px, py in sorted(entrance_pts):
+        if any(math.hypot(px - rx, py - ry) < rr for rx, ry, rr in legend["features"].get("removeEntrances", [])):
+            continue
+        pt = Point(px, py)
+        if not hull.contains(pt):
+            pt = nearest_points(hull.buffer(-1.5), pt)[0]
+        entrances.append({"id": f"campus-entrance-{len(entrances) + 1}", "label": "درب ورود", **to_c(pt.x, pt.y)})
 
     bounds = hull.bounds
     layout = {
         "isDemo": False,
         "source": {
             "kind": "cad",
-            "note": "پلان محوطه از فایل CAD ارائه‌شده توسط مالک پروژه استخراج شده است. نام و توضیح ساختمان‌ها طبق جدول ارائه‌شده توسط مالک پروژه است و هنوز توسط دانشگاه تأیید رسمی نشده. ارتفاع ساختمان‌ها در نقشه نیست و فقط برای نمایش و بر اساس تعداد طبقات تخمین زده شده است. درخت‌ها، الاچیق‌ها و موقعیت و اندازهٔ حوض نمادین‌اند و از نقشه نیامده‌اند.",
+            "note": "پلان محوطه از فایل CAD ارائه‌شده توسط مالک پروژه استخراج شده است. نام و توضیح ساختمان‌ها طبق جدول ارائه‌شده توسط مالک پروژه است و هنوز توسط دانشگاه تأیید رسمی نشده. ارتفاع ساختمان‌ها در نقشه نیست و فقط برای نمایش و بر اساس تعداد طبقات تخمین زده شده است. مرز محوطه از خط مرز ملک در نقشه است. الاچیق‌ها از نقشه (شش‌ضلعی و لوزی) و علامت‌گذاری مالک آمده‌اند. درخت‌ها فقط در فضای سبز و باغچه‌های مشخص‌شده در نقشه و به‌صورت نمادین گذاشته شده‌اند و موقعیت و اندازهٔ حوض هم نمادین است.",
         },
         "ground": {"width": r2(bounds[2] - bounds[0]), "depth": r2(bounds[3] - bounds[1]), "outline": ring(hull)},
         "buildings": buildings,
         "areas": areas,
         "ponds": ponds,
         "props": props,
-        "entrances": [
-            {"id": f"campus-entrance-{i + 1}", "label": "درب ورود", **to_c(px, py)}
-            for i, (px, py) in enumerate(sorted(entrance_pts))
-        ],
+        "entrances": entrances,
         "linework": [{"kind": k, "polylines": v} for k, v in groups.items() if v],
         "nav": {"clearance": WALK_CLEARANCE, "obstacles": nav_obstacles},
         "paths": [],
@@ -415,7 +442,7 @@ def main(parsed_path: str) -> None:
     OUT.write_text(json.dumps(layout, ensure_ascii=False, separators=(",", ":")) + "\n")
     n_fp = sum(1 for b in buildings if b["kind"] == "building")
     print(f"wrote {OUT.relative_to(ROOT)}: {n_fp} footprints, {len(buildings) - n_fp} markers, {len(areas)} areas, {len(trees)} trees, "
-          f"{len(props)} gazebos, {sum(len(g['polylines']) for g in layout['linework'])} polylines, {len(entrance_pts)} entrances, {OUT.stat().st_size // 1024} KB")
+          f"{len(props)} gazebos, {sum(len(g['polylines']) for g in layout['linework'])} polylines, {len(entrances)} entrances, {OUT.stat().st_size // 1024} KB")
 
 
 if __name__ == "__main__":
