@@ -15,7 +15,7 @@
 - رسم مسیر روی صحنهٔ سه‌بعدی (برش‌های هر طبقه، نقاط انتقال پله/آسانسور) و راهنمای مرحله‌به‌مرحلهٔ فارسی. نقطهٔ شروع را کاربر **دستی** انتخاب می‌کند (موقعیت‌یابی زنده/GPS وجود ندارد).
 - جستجو در `/search` با نرمال‌سازی فارسی (ي/ی، ك/ک، ارقام فارسی/عربی/لاتین، فاصله و نیم‌فاصله) بر اساس نام واحد، خدمت، شمارهٔ اتاق، طبقه، ساختمان و کلیدواژه.
 - صفحهٔ واحد `/departments/[slug]` با دکمه‌های «نمایش روی نقشه» و «مسیریابی به این واحد»؛ فیلدهای نامشخص به‌صورت «موجود نیست» نمایش داده می‌شوند (هیچ شمارهٔ تماس یا ساعت کاری ساختگی نمایش داده نمی‌شود).
-- صحنهٔ سه‌بعدی پروسیجرال دانشگاه در `/campus` (ساختمان پایلوت، مسیرهای پیاده، درخت، نشانگر ورودی).
+- صحنهٔ سه‌بعدی پردیس در `/campus` بر اساس نقشهٔ CAD محوطه: پلان واقعی ساختمان‌ها، فضای سبز، زمین ورزشی، دو «درب ورود»، انتخاب با کلیک یا از فهرست. ساختمان‌هایی که خط پیرامون بسته ندارند با پین نشان داده می‌شوند و ارتفاع‌ها تقریبی‌اند.
 - بارگذار GLB (Mode B) که مسیرها را از `data/demo/model-manifest.json` می‌خواند و در صورت نبودن/خرابی فایل به مدل پروسیجرال برمی‌گردد.
 - تشخیص WebGL و حالت جایگزین (جستجو و اطلاعات مقصد بدون سه‌بعدی هم کار می‌کنند)، Error Boundary، حالت‌های بارگذاری.
 - Supabase (PostgreSQL + Auth + RLS) به‌صورت اختیاری؛ پنل مدیریت با نقش‌های `admin` و `editor`.
@@ -84,11 +84,13 @@ npm run dev        # http://localhost:3000
 
 ```
 data/demo/            داده‌های نمونه (JSON) + model-manifest.json
+data/campus/          پلان محوطه (campus-layout.json) استخراج‌شده از DWG؛ بدون مختصات جغرافیایی
 database/             schema.sql (جدول‌ها، قیدها، ایندکس‌ها، RLS) و seed.sql
 docs/                 مستندات معماری، CAD، مدل سه‌بعدی، ناوبری، استقرار
 input-assets/         محل منابع خام (CAD، Blender، مراجع) — فایل‌های DWG/DXF/.blend در Git نادیده گرفته می‌شوند
 public/               فایل‌های استاتیک؛ مدل‌های واقعی در public/models/ (فعلاً وجود ندارد)
 scripts/              copy-draco.mjs، generate-demo-data.mjs
+scripts/cad/          dwg-dump.mjs، build_campus.py، campus-legend.json (راهنما: docs/cad-import-guide.md)
 src/app/              صفحه‌ها: /, /campus, /buildings/[slug], /search, /directions, /departments/[slug], /admin, /admin/login
 src/components/       3d/ (صحنه‌ها)، navigation/، search/، layout/، ui/
 src/features/         منطق و نمای هر قابلیت (buildings, floors, rooms, admin, ...)
@@ -106,7 +108,7 @@ tests/                آزمون‌های Vitest
 
 ۱. **داده**: ردیف‌های `buildings`، `floors`، `rooms`، `navigation_nodes`، `navigation_edges`، `entrances` (و در صورت نیاز `departments`, `department_services`, `facilities`) را اضافه کنید — در حالت دمو در فایل‌های `data/demo/*.json`، در حالت Supabase از پنل `/admin` یا SQL. شناسه‌ها باید پایدار باشند (`^[A-Za-z0-9][A-Za-z0-9_-]*$`) و `slug` ساختمان حروف کوچک و خط تیره.
 ۲. **مانیفست مدل**: یک عنصر به آرایهٔ `buildings` در `data/demo/model-manifest.json` اضافه کنید (`buildingId`، `exterior`، `floors`، `objectMap`، و بلوک `procedural`). بدون ورودی مانیفست، صفحهٔ `/buildings/<slug>` پیام «مدل سه‌بعدی ثبت نشده» نشان می‌دهد. مانیفست در Supabase ذخیره نمی‌شود و همیشه از همین فایل محلی خوانده می‌شود. فیلد `procedural` طبق طرح Zod الزامی است (حتی برای ساختمانی که GLB دارد).
-۳. در صورت نیاز ساختمان را به بخش `campus` همان مانیفست اضافه کنید.
+۳. در صورت نیاز ساختمان را در `data/campus/campus-layout.json` به ورودی همان شماره در پلان محوطه وصل کنید (`slug` و `buildingId`)؛ این فایل با `scripts/cad/build_campus.py` تولید می‌شود (راهنما: `docs/cad-import-guide.md`).
 
 در حال حاضر صفحهٔ خانه و بقیهٔ UI برای «ساختمان پایلوت» روی slug `building-01` (`PILOT_BUILDING_SLUG` در `src/lib/brand.ts`) تنظیم شده‌اند.
 

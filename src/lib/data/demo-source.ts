@@ -9,8 +9,10 @@ import facilitiesJson from "@data/demo/facilities.json";
 import nodesJson from "@data/demo/navigation-nodes.json";
 import edgesJson from "@data/demo/navigation-edges.json";
 import manifestJson from "@data/demo/model-manifest.json";
+import campusLayoutJson from "@data/campus/campus-layout.json";
 import {
   BuildingSchema,
+  CampusSchema,
   DepartmentSchema,
   DepartmentServiceSchema,
   EntranceSchema,
@@ -22,6 +24,13 @@ import {
   RoomSchema,
 } from "./schemas";
 import type { NavigatorData } from "./types";
+
+/**
+ * The model manifest with the campus site plan taken from data/campus/campus-layout.json (extracted from the
+ * supplied CAD drawing by scripts/cad/build_campus.py) instead of the procedural demo campus. The indoor demo
+ * building keeps its own procedural model; the two are independent.
+ */
+export const manifestInput: unknown = { ...manifestJson, campus: CampusSchema.parse(campusLayoutJson) };
 
 /**
  * Local demo data source. Every record is fictional (isDemo: true) and is validated
@@ -39,6 +48,6 @@ export function loadDemoData(): NavigatorData {
     facilities: z.array(FacilitySchema).parse(facilitiesJson),
     nodes: z.array(NavNodeSchema).parse(nodesJson),
     edges: z.array(NavEdgeSchema).parse(edgesJson),
-    manifest: ModelManifestSchema.parse(manifestJson),
+    manifest: ModelManifestSchema.parse(manifestInput),
   };
 }

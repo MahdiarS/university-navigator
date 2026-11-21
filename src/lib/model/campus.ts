@@ -45,8 +45,56 @@ export function campusBounds(campus: Campus): BoundsLike {
   return { min: { x: -hx * 0.8, y: 0, z: -hz * 0.8 }, max: { x: hx * 0.8, y: tallest, z: hz * 0.8 } };
 }
 
-/** The building that can be opened, matched by slug. */
-export function findCampusBuilding(campus: Campus, slug: string | null) {
-  if (!slug) return null;
-  return campus.buildings.find((b) => b.slug === slug) ?? null;
+export type CampusBuilding = Campus["buildings"][number];
+
+/** Stable key used for selection and hover on the campus map. */
+export function campusKey(b: CampusBuilding): string {
+  return b.id ?? b.slug ?? b.label;
+}
+
+/** The campus entry for a selection key (see campusKey). */
+export function findCampusBuilding(campus: Campus, key: string | null): CampusBuilding | null {
+  if (!key) return null;
+  return campus.buildings.find((b) => campusKey(b) === key) ?? null;
+}
+
+/**
+ * Outline for THREE.Shape. A Shape lives in the XY plane and the mesh is rotated by -90 degrees about X so the
+ * extrusion points up: that maps shape (sx, sy) to world (sx, ., -sy). To land on world z we therefore feed -z.
+ */
+export function footprintShapePoints(footprint: readonly { x: number; z: number }[]): [number, number][] {
+  return footprint.map((p) => [p.x, -p.z]);
+}
+
+/** Absolute polygon area (m^2) by the shoelace formula. */
+export function footprintArea(footprint: readonly { x: number; z: number }[]): number {
+  let sum = 0;
+  for (let i = 0; i < footprint.length; i++) {
+    const a = footprint[i]!;
+    const b = footprint[(i + 1) % footprint.length]!;
+    sum += a.x * b.z - b.x * a.z;
+  }
+  return Math.abs(sum) / 2;
+}
+
+/**
+ * Flat polylines ([x0, z0, x1, z1, ...]) -> a vertex buffer for THREE.LineSegments at height y
+ * (each leg becomes a separate segment so one draw call covers a whole layer).
+ */
+export function polylinesToSegmentPositions(polylines: readonly (readonly number[])[], y: number): Float32Array {
+  let legs = 0;
+  for (const p of polylines) legs += Math.max(0, p.length / 2 - 1);
+  const out = new Float32Array(legs * 6);
+  let o = 0;
+  for (const p of polylines) {
+    for (let i = 2; i + 1 < p.length; i += 2) {
+      out[o++] = p[i - 2]!;
+      out[o++] = y;
+      out[o++] = p[i - 1]!;
+      out[o++] = p[i]!;
+      out[o++] = y;
+      out[o++] = p[i + 1]!;
+    }
+  }
+  return out;
 }

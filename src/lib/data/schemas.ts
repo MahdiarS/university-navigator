@@ -199,28 +199,52 @@ export const BuildingModelSchema = z.object({
   procedural: ProceduralLayoutSchema,
 });
 
+const xzSchema = z.object({ x: z.number(), z: z.number() });
+
+export const CampusBuildingSchema = z.object({
+  /** stable key for selection on the map; falls back to slug for older data */
+  id: z.string().optional(),
+  /** the number printed on the site plan */
+  number: z.number().int().positive().nullable().optional(),
+  /** indoor-model building this campus entry opens, if one exists */
+  buildingId: idSchema.nullable(),
+  slug: z.string().nullable(),
+  label: z.string(),
+  name: z.string().nullable().optional(),
+  description: z.string().nullable().optional(),
+  /** storeys as described by the owner; null/absent = unknown */
+  floors: z.number().int().positive().nullable().optional(),
+  /** heights are not in a site plan: true = size.height is a visualisation estimate */
+  heightIsEstimate: z.boolean().optional(),
+  /** "marker" = no closed outline in the drawing, shown as a pin instead of an invented shape */
+  kind: z.enum(["building", "marker"]).optional(),
+  position: xzSchema,
+  size: z.object({ width: z.number().positive(), depth: z.number().positive(), height: z.number().positive() }),
+  clickable: z.boolean(),
+  entrance: xzSchema.nullable(),
+  /** outline in campus meters (X east, Z south); when present the building is extruded from it */
+  footprint: z.array(xzSchema).min(3).optional(),
+});
+
 export const CampusSchema = z.object({
   isDemo: z.boolean(),
+  /** where the layout came from; shown to users so demo and real content are never confused */
+  source: z.object({ kind: z.enum(["demo", "cad"]), note: z.string() }).optional(),
   ground: z.object({ width: z.number().positive(), depth: z.number().positive() }),
-  buildings: z.array(
-    z.object({
-      buildingId: idSchema.nullable(),
-      slug: z.string().nullable(),
-      label: z.string(),
-      position: z.object({ x: z.number(), z: z.number() }),
-      size: z.object({ width: z.number().positive(), depth: z.number().positive(), height: z.number().positive() }),
-      clickable: z.boolean(),
-      entrance: z.object({ x: z.number(), z: z.number() }).nullable(),
-    }),
-  ),
+  buildings: z.array(CampusBuildingSchema),
+  entrances: z.array(z.object({ id: z.string(), label: z.string(), x: z.number(), z: z.number() })).optional(),
+  /** flat context lines on the ground; each polyline is a flat [x0, z0, x1, z1, ...] array */
+  linework: z
+    .array(z.object({ kind: z.enum(["vegetation", "sports", "site"]), polylines: z.array(z.array(z.number()).min(4)) }))
+    .optional(),
   paths: z.array(
     z.object({
       id: z.string(),
-      points: z.array(z.object({ x: z.number(), z: z.number() })).min(2),
+      points: z.array(xzSchema).min(2),
       width: z.number().positive(),
     }),
   ),
-  trees: z.array(z.object({ x: z.number(), z: z.number() })),
+  trees: z.array(xzSchema),
 });
 
 export const ModelManifestSchema = z.object({

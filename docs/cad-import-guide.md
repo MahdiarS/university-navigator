@@ -103,6 +103,34 @@ All floors must share one origin and orientation, otherwise stairs, lifts and ro
 4. `npm run dev` → open `/buildings/building-01`; check floors, exploded view, hover/click on rooms, and routes (`docs/3d-model-guide.md`, `docs/navigation-guide.md`).
 5. If a GLB fails to load, that floor automatically falls back to the procedural demo geometry; fix the file rather than relying on the fallback.
 
+## Campus site plan (DWG → `data/campus/campus-layout.json`)
+
+The 3D campus (`/campus`, home-page preview) is built from a **site plan**, not from the per-floor workflow above. The first plan (a 2013–2017 AutoCAD DWG, units = meters, UTM coordinates, ~237 × 262 m) is already imported. To import a new or corrected plan:
+
+1. Keep the DWG **outside the repository** (`*.dwg`, `*.dxf` are git-ignored; it is private architectural data).
+2. Dump it to JSON. DWG cannot be read by `ezdxf`; LibreDWG compiled to WebAssembly is used and is *not* a project dependency:
+   ```bash
+   npm install --no-save @mlightcad/libredwg-web
+   node scripts/cad/dwg-dump.mjs /path/to/campus.dwg /path/outside/repo/campus-parsed.json
+   ```
+3. Put the owner-supplied legend in `scripts/cad/campus-legend.json` (number → name, description, number of floors, and `"footprint": false` for numbers whose outline is not closed in the drawing).
+4. Build the layout (`pip install shapely` once):
+   ```bash
+   python3 scripts/cad/build_campus.py /path/outside/repo/campus-parsed.json
+   ```
+
+What the script does, and what it deliberately does not do:
+
+- **Footprints** are the *closed outlines drawn in the DWG*. Small gaps (up to about 2.5 m) are closed by a buffer-and-shrink step. A number with no closed outline becomes a **pin marker**; no shape is ever guessed.
+- **Coordinates** are re-centred on the middle of the drawing; the UTM georeference is dropped. The shared convention applies: meters, X east, **Z south** (Z = −northing), Y up.
+- **Heights are not in a site plan.** `size.height` = floors from the legend × 3.6 m, flagged `heightIsEstimate: true`. Unknown floor counts are drawn as one storey and shown as "ثبت نشده".
+- **Context lines** (vegetation, sports pitch, site/parcel lines) are simplified to 0.25 m and stored as flat polylines; building edges are skipped because the extrusion already draws them.
+- **Entrances** come from the "درب ورود" text in the drawing.
+
+Numbers 7, 10 and 11 (and the unnamed 12–15) have no closed outline in the first plan, so they appear as pins. Supply their outlines (or a corrected DWG) and re-run the steps to extrude them. Run `npx vitest run tests/model/campus.test.ts` after regenerating.
+
+The indoor demo building (`building-01`) is **independent of the campus**; no real campus building has an indoor map until its floor plans are imported (sections 1–10 above), after which its campus entry gets `slug`/`buildingId`.
+
 ## Checklist
 
 - [ ] DWG originals untouched and **not committed**
