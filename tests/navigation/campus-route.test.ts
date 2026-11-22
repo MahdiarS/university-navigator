@@ -116,15 +116,47 @@ describe("real campus: routes start at the university entrance", () => {
         // never shorter than the straight line, never through an obstacle interior
         const straight = Math.hypot(route.arrival.x - e.x, route.arrival.z - e.z);
         expect(route.length).toBeGreaterThanOrEqual(straight - 1e-6);
-        for (const leg of route.legs)
-          for (const o of obstacles) expect(segmentCrossesInterior(leg.from, leg.to, o.ring), `${b.id} leg crosses ${o.id}`).toBe(false);
-        // ends within the walking clearance of the target's own footprint
+        // the last leg of a door route steps through the building's own walking margin to the door; nothing else may be crossed
         const own = obstacles.find((o) => o.id === b.id)!;
-        expect(strictlyInside(route.arrival, own.ring)).toBe(false);
+        route.legs.forEach((leg, i) => {
+          const last = i === route.legs.length - 1;
+          for (const o of obstacles) {
+            if (q.toDoor && last && o === own) continue;
+            expect(segmentCrossesInterior(leg.from, leg.to, o.ring), `${b.id} leg crosses ${o.id}`).toBe(false);
+          }
+        });
+        if (q.toDoor) {
+          // arrives exactly at one of the doors the owner marked, after a short straight approach
+          expect(b.doors!.some((d) => Math.hypot(d.x - route.arrival.x, d.z - route.arrival.z) < 1e-6)).toBe(true);
+          expect(route.legs.at(-1)!.distance).toBeLessThan(3);
+        } else {
+          // ends within the walking clearance of the target's own footprint
+          expect(strictlyInside(route.arrival, own.ring)).toBe(false);
+        }
         expect(route.legs.reduce((s, l) => s + l.distance, 0)).toBeCloseTo(route.length, 6);
       }
     });
   }
+
+  it("routes end at the owner-marked doors (all numbered buildings except 2 and 11, which have no mark)", () => {
+    const withDoors = buildings.filter((b) => b.doors?.length).map((b) => b.number);
+    expect(withDoors.sort((a, b) => a! - b!)).toEqual([1, 3, 4, 5, 6, 7, 8, 9, 10, 14]);
+    expect(campus.buildings.find((b) => b.number === 4)!.doors).toHaveLength(2);
+    expect(campus.buildings.find((b) => b.number === 7)!.doors).toHaveLength(2);
+    for (const b of buildings) {
+      const q = routeFromEntrance(campus, "campus-entrance-1", b.id!);
+      if (q.status !== "ok") throw new Error(q.status);
+      expect(q.toDoor).toBe(!!b.doors?.length);
+    }
+  });
+
+  it("picks the nearer door when a building has two", () => {
+    const b4 = campus.buildings.find((b) => b.number === 4)!;
+    const q = routeFromEntrance(campus, "campus-entrance-1", b4.id!);
+    if (q.status !== "ok") throw new Error(q.status);
+    const alt = b4.doors!.filter((d) => Math.hypot(d.x - q.route.arrival.x, d.z - q.route.arrival.z) > 1e-6);
+    expect(alt).toHaveLength(1);
+  });
 
   it("never routes through land outside the property line (north-east notch)", () => {
     const b6 = campus.buildings.find((b) => b.number === 6)!;

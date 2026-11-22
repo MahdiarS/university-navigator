@@ -357,7 +357,21 @@ export function CampusScene({
                 {b.label}
               </SceneLabel>
             )}
-            {b.entrance && (
+            {b.doors?.map((door, i) => (
+              <group key={i} position={[door.x - b.position.x, 0, door.z - b.position.z]} rotation={[0, door.angle ?? 0, 0]}>
+                {/* door leaf + a lintel, standing proud of the wall so it reads from above and from the side */}
+                <mesh
+                  geometry={res.unit}
+                  material={res.entrance}
+                  position={[0, 1.1, 0]}
+                  scale={[2.4, 2.2, 0.7]}
+                  raycast={none}
+                  name="campus-door-marker"
+                />
+                <mesh geometry={res.unit} material={res.entrance} position={[0, 0.06, 0.9]} scale={[3.2, 0.12, 1.6]} raycast={none} />
+              </group>
+            ))}
+            {!b.doors && b.entrance && (
               <group position={[b.entrance.x - b.position.x, 0, b.entrance.z - b.position.z]}>
                 <mesh
                   geometry={res.unit}

@@ -178,6 +178,15 @@ def main(parsed_path: str) -> None:
                     if poly.geom_type != "Polygon":
                         poly = max(poly.geoms, key=lambda g: g.area)
                     poly, how = poly.simplify(0.25), f"closed region (gap tolerance {tol} m)"
+                    # the owner marked parts of the closed region that are empty space, not building (legend "cut")
+                    for cut in item.get("cut", []):
+                        poly = poly.difference(Polygon(cut))
+                    if item.get("cut"):
+                        poly = poly.buffer(-0.3, join_style="mitre").buffer(0.3, join_style="mitre")
+                        if poly.geom_type != "Polygon":
+                            poly = max(poly.geoms, key=lambda g: g.area)
+                        poly = poly.simplify(0.2)
+                        how += f", {len(item['cut'])} owner cut(s) removed"
                     break
             if poly is None:
                 hit = sorted((f for f in closed_polylines if f.contains(Point(pts[0]))), key=lambda f: f.area)
@@ -213,6 +222,18 @@ def main(parsed_path: str) -> None:
             entry["size"] = {"width": r2(b0[2] - b0[0]), "depth": r2(b0[3] - b0[1]), "height": height}
             entry["footprint"] = ring(poly)
             entry["trim"] = ring(poly.buffer(WALL_TRIM, join_style="mitre").simplify(0.15))
+            # doors the owner marked: snapped onto the outline; angle = direction of the wall at the door (radians, plan X/Y)
+            doors = []
+            for dx, dy in item.get("doors", []):
+                d_pt = poly.exterior.interpolate(poly.exterior.project(Point(dx, dy)))
+                cs = list(poly.exterior.coords)
+                seg = min(range(len(cs) - 1), key=lambda i: LineString([cs[i], cs[i + 1]]).distance(d_pt))
+                ang = math.atan2(cs[seg + 1][1] - cs[seg][1], cs[seg + 1][0] - cs[seg][0])
+                doors.append({**to_c(d_pt.x, d_pt.y), "angle": round(ang, 3)})
+                print(f"building {n}: door mark moved {Point(dx, dy).distance(d_pt):.1f} m onto the outline")
+            if doors:
+                entry["entrance"] = {"x": doors[0]["x"], "z": doors[0]["z"]}
+                entry["doors"] = doors
             taken.append(poly)
             taken_ids.append(entry["id"])
             buildings.append(entry)

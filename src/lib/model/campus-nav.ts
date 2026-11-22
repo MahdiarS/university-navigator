@@ -1,6 +1,8 @@
 import type { Campus } from "@/lib/data/types";
 import {
   buildCampusGraph,
+  doorApproach,
+  extendRoute,
   findCampusRoute,
   type CampusGoal,
   type CampusGraph,
@@ -53,7 +55,13 @@ export function obstacleName(campus: Campus, obstacleId: string): string {
 }
 
 export type CampusRouteQuery =
-  | { status: "ok"; route: CampusRouteOk; entranceLabel: string; buildingLabel: string }
+  | {
+      status: "ok";
+      route: CampusRouteOk;
+      entranceLabel: string;
+      buildingLabel: string;
+      /** route ends at an owner-marked door */ toDoor: boolean;
+    }
   | { status: "unknown-entrance" | "unknown-building" | "no-data" | "unknown-goal" | "same-location" | "no-route" | "blocked-start" };
 
 /** Walking route from one of the university's entrances to a building. */
@@ -65,14 +73,37 @@ export function routeFromEntrance(campus: Campus, entranceId: string, buildingKe
   const building = findCampusBuilding(campus, buildingKey);
   if (!building) return { status: "unknown-building" };
 
-  let goal: CampusGoal;
-  if (building.entrance) goal = { kind: "point", point: building.entrance };
-  else if (graph.obstacles.some((o) => o.id === building.id)) goal = { kind: "obstacle", obstacleId: building.id! };
-  else goal = { kind: "point", point: building.position };
+  const start = { x: entrance.x, z: entrance.z };
+  const doors = building.doors?.length ? building.doors : building.entrance ? [building.entrance] : [];
+  const hasObstacle = graph.obstacles.some((o) => o.id === building.id);
 
-  const res: CampusRouteResult = findCampusRoute(graph, { x: entrance.x, z: entrance.z }, goal);
+  // owner-marked doors: walk to the front of the nearest door, then straight to it
+  if (doors.length > 0 && hasObstacle) {
+    let best: CampusRouteOk | null = null;
+    let failure: Exclude<CampusRouteResult["status"], "ok"> | null = null;
+    for (const door of doors) {
+      const approach = doorApproach(graph, building.id!, door);
+      if (!approach) continue;
+      const res = findCampusRoute(graph, start, { kind: "point", point: approach });
+      if (res.status !== "ok") {
+        failure ??= res.status;
+        continue;
+      }
+      const full = extendRoute(res, door);
+      if (!best || full.length < best.length) best = full;
+    }
+    if (best)
+      return { status: "ok", route: best, entranceLabel: entranceName(campus, entrance.id), buildingLabel: building.label, toDoor: true };
+    return { status: failure ?? "no-route" };
+  }
+
+  let goal: CampusGoal;
+  if (hasObstacle) goal = { kind: "obstacle", obstacleId: building.id! };
+  else goal = { kind: "point", point: building.entrance ?? building.position };
+
+  const res: CampusRouteResult = findCampusRoute(graph, start, goal);
   if (res.status !== "ok") return { status: res.status };
-  return { status: "ok", route: res, entranceLabel: entranceName(campus, entrance.id), buildingLabel: building.label };
+  return { status: "ok", route: res, entranceLabel: entranceName(campus, entrance.id), buildingLabel: building.label, toDoor: false };
 }
 
 /** The entrance with the shortest walking route to the building (null when none is reachable). */
@@ -136,7 +167,8 @@ export function describeCampusRoute(campus: Campus, q: Extract<CampusRouteQuery,
   for (const w of walks) {
     const prefix = w.turn ? `${TURN_TEXT[w.turn]} ` : "";
     let text: string;
-    if (!w.cornerOf) text = `${prefix}حدود ${formatWalkMeters(w.distance)} ${w.turn ? "" : "مستقیم "}بروید تا نزدیک‌ترین ضلع ${target}`;
+    if (!w.cornerOf)
+      text = `${prefix}حدود ${formatWalkMeters(w.distance)} ${w.turn ? "" : "مستقیم "}بروید تا ${q.toDoor ? "درِ" : "نزدیک‌ترین ضلع"} ${target}`;
     else if (w.cornerOf === lastCorner)
       text = `${prefix}حدود ${formatWalkMeters(w.distance)} از کنار ${obstacleName(campus, w.cornerOf)} ادامه دهید`;
     else text = `${prefix}حدود ${formatWalkMeters(w.distance)} ${w.turn ? "" : "مستقیم "}بروید تا گوشهٔ ${obstacleName(campus, w.cornerOf)}`;

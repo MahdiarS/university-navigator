@@ -68,6 +68,28 @@ describe("campus site-plan layout (data/campus/campus-layout.json)", () => {
     expect(campus.nav!.obstacles.some((o) => o.id === b7.id)).toBe(true);
   });
 
+  it("keeps the empty space beside the prayer room out of building 6 (owner cut) and puts every door on a wall", () => {
+    const b6 = campus.buildings.find((b) => b.number === 6)!;
+    // the removed wing lay west of x = 35.3 m between z = 10 and 45 m
+    expect(b6.footprint!.every((p) => p.x >= 35.2 || p.z < 10 || p.z > 45)).toBe(true);
+    expect(b6.footprint!.some((p) => p.x < 35.2 && p.z > 10 && p.z < 45)).toBe(false);
+    expect(strictlyInside({ x: 30, z: 30 }, b6.footprint!)).toBe(false);
+    for (const b of campus.buildings.filter((x) => x.doors)) {
+      for (const d of b.doors!) {
+        // on the outline: not inside, and within a few cm of an edge
+        expect(strictlyInside(d, b.footprint!)).toBe(false);
+        const near = b.footprint!.some((p, i) => {
+          const q = b.footprint![(i + 1) % b.footprint!.length]!;
+          const dx = q.x - p.x;
+          const dz = q.z - p.z;
+          const t = Math.max(0, Math.min(1, ((d.x - p.x) * dx + (d.z - p.z) * dz) / (dx * dx + dz * dz || 1)));
+          return Math.hypot(d.x - (p.x + t * dx), d.z - (p.z + t * dz)) < 0.05;
+        });
+        expect(near, `door of building ${b.number} is on its wall`).toBe(true);
+      }
+    }
+  });
+
   it("has the green area with a pond in the middle, pitch, court, plan gazebos and trees", () => {
     const park = campus.areas!.find((a) => a.kind === "park")!;
     expect(park.name).toBe("محوطه سبز");

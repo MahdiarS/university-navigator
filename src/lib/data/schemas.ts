@@ -41,18 +41,7 @@ const modelUrl = z
   .nullish()
   .transform((v) => (v === undefined || v === null || v === "" ? null : v));
 
-export const ROOM_TYPES = [
-  "office",
-  "classroom",
-  "lab",
-  "meeting",
-  "study",
-  "library",
-  "lobby",
-  "restroom",
-  "hall",
-  "other",
-] as const;
+export const ROOM_TYPES = ["office", "classroom", "lab", "meeting", "study", "library", "lobby", "restroom", "hall", "other"] as const;
 export const NODE_TYPES = ["entrance", "corridor", "junction", "room-door", "stair", "elevator"] as const;
 export const EDGE_TYPES = ["corridor", "door", "stairs", "elevator"] as const;
 export const FACILITY_TYPES = ["restroom", "stairs", "elevator", "info-desk", "other"] as const;
@@ -200,6 +189,8 @@ export const BuildingModelSchema = z.object({
 });
 
 const xzSchema = z.object({ x: z.number(), z: z.number() });
+/** a door on a wall: `angle` = rotation about Y that aligns a door-wide block with the wall (radians) */
+const doorSchema = xzSchema.extend({ angle: z.number().optional() });
 
 export const CampusBuildingSchema = z.object({
   /** stable key for selection on the map; falls back to slug for older data */
@@ -222,6 +213,8 @@ export const CampusBuildingSchema = z.object({
   size: z.object({ width: z.number().positive(), depth: z.number().positive(), height: z.number().positive() }),
   clickable: z.boolean(),
   entrance: xzSchema.nullable(),
+  /** doors marked by the owner, on the outline (the first one is also `entrance`); absent = door position unknown */
+  doors: z.array(doorSchema).optional(),
   /** outline in campus meters (X east, Z south); when present the building is extruded from it */
   footprint: z.array(xzSchema).min(3).optional(),
   /** slightly larger outline (a few cm outside the walls) used for window bands and ledges */
@@ -250,7 +243,17 @@ export const CampusSchema = z.object({
   areas: z.array(CampusAreaSchema).optional(),
   /** the pond in the green area; size is symbolic (the plan has no water outline) */
   ponds: z
-    .array(z.object({ id: z.string(), x: z.number(), z: z.number(), rx: z.number().positive(), rz: z.number().positive(), angle: z.number(), decorative: z.boolean().optional() }))
+    .array(
+      z.object({
+        id: z.string(),
+        x: z.number(),
+        z: z.number(),
+        rx: z.number().positive(),
+        rz: z.number().positive(),
+        angle: z.number(),
+        decorative: z.boolean().optional(),
+      }),
+    )
     .optional(),
   /** gazebos: from the plan's hexagon/diamond symbols and the owner's marking (`source`); `size` = radius (round) or half-width (square) in meters */
   props: z

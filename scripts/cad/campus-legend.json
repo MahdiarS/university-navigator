@@ -7,7 +7,13 @@
       "name": "دفتر اساتید ۱",
       "description": "طبقه همکف: آزمایشگاه؛ طبقه بالا: دفتر اساتید",
       "floors": 2,
-      "footprint": true
+      "footprint": true,
+      "doors": [
+        [
+          89.7,
+          34.2
+        ]
+      ]
     },
     {
       "number": 2,
@@ -21,56 +27,132 @@
       "name": "دفتر اساتید ۳ و کلاس‌های فارابی",
       "description": "طبقه همکف: کلاس‌های فارابی؛ طبقه بالا: دفتر اساتید",
       "floors": 2,
-      "footprint": true
+      "footprint": true,
+      "doors": [
+        [
+          82.3,
+          84.8
+        ]
+      ]
     },
     {
       "number": 4,
       "name": "ساختمان اداری مرکزی",
       "description": "سه طبقه؛ طبقه همکف دفتر ندارد",
       "floors": 3,
-      "footprint": true
+      "footprint": true,
+      "doors": [
+        [
+          126.3,
+          46.3
+        ],
+        [
+          139.9,
+          75.2
+        ]
+      ]
     },
     {
       "number": 5,
       "name": "کلاس‌های خیام",
       "description": "فقط طبقه همکف",
       "floors": 1,
-      "footprint": true
+      "footprint": true,
+      "doors": [
+        [
+          183.8,
+          85.7
+        ]
+      ]
     },
     {
       "number": 6,
       "name": "کلاس‌های ابوریحان",
       "description": "فقط طبقه همکف",
       "floors": 1,
-      "footprint": true
+      "footprint": true,
+      "cut": [
+        [
+          [
+            133.4,
+            125.2
+          ],
+          [
+            153.7,
+            125.2
+          ],
+          [
+            153.7,
+            86.2
+          ],
+          [
+            133.4,
+            86.2
+          ]
+        ]
+      ],
+      "doors": [
+        [
+          179.7,
+          106.5
+        ]
+      ]
     },
     {
       "number": 7,
       "name": "نمازخانه",
       "description": null,
       "floors": null,
-      "footprint": true
+      "footprint": true,
+      "doors": [
+        [
+          131.7,
+          99.7
+        ],
+        [
+          137.8,
+          116.5
+        ]
+      ]
     },
     {
       "number": 8,
       "name": "مرکز نوآوری",
       "description": null,
       "floors": null,
-      "footprint": true
+      "footprint": true,
+      "doors": [
+        [
+          103.1,
+          122.8
+        ]
+      ]
     },
     {
       "number": 9,
       "name": "سلف",
       "description": null,
       "floors": null,
-      "footprint": true
+      "footprint": true,
+      "doors": [
+        [
+          63.7,
+          116.5
+        ]
+      ]
     },
     {
       "number": 10,
       "name": "دفتر تربیت بدنی",
       "description": null,
       "floors": null,
-      "footprint": true
+      "footprint": true,
+      "doors": [
+        [
+          42.0,
+          111.0
+        ]
+      ]
     },
     {
       "number": 11,
@@ -98,7 +180,13 @@
       "name": "سالن شهید چمران",
       "description": null,
       "floors": null,
-      "footprint": true
+      "footprint": true,
+      "doors": [
+        [
+          124.4,
+          30.3
+        ]
+      ]
     },
     {
       "number": 15,
@@ -152,5 +240,6 @@
       }
     ],
     "_note2": "removeEntrances: [x, y, radius] in drawing-local meters; the owner removed the north-east gate. gazebos: extra gazebos the owner marked that are not in the DWG."
-  }
+  },
+  "_note3": "cut: polygons (drawing-local meters) the owner marked as empty space inside a closed region (building 6). doors: yellow crosses the owner drew on a screenshot, converted to drawing-local meters; the generator snaps each to the nearest point of the building outline. Buildings 2 and 11 had no mark (routes end at the nearest face)."
 }

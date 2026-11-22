@@ -215,6 +215,45 @@ function snapOut(p: Pt, obstacles: readonly CampusObstacle[]): Pt | null {
 }
 
 /**
+ * Where to stop in front of a door: the point of the (inflated) obstacle ring nearest to the door that is not inside a
+ * neighbouring obstacle. The caller then walks the last metre or two straight to the door (see `extendRoute`).
+ */
+export function doorApproach(graph: CampusGraph, obstacleId: string, door: Pt): Pt | null {
+  const host = graph.obstacles.find((o) => o.id === obstacleId);
+  if (!host) return null;
+  const others = graph.obstacles.filter((o) => o !== host);
+  let best: Pt | null = null;
+  let bestD = Infinity;
+  for (const p of sampleRing(host.ring, 0.25)) {
+    const d = dist(p, door);
+    if (d < bestD && !insideAny(p, others)) {
+      best = p;
+      bestD = d;
+    }
+  }
+  return best;
+}
+
+/** Appends a final straight leg to `to` (e.g. from the approach point to the door itself). */
+export function extendRoute(route: CampusRouteOk, to: Pt): CampusRouteOk {
+  const from = route.arrival;
+  const d = dist(from, to);
+  if (d < 0.05) return route;
+  const prev = route.points.length > 1 ? route.points[route.points.length - 2]! : null;
+  const turn: Turn | null = prev ? turnBetween({ x: from.x - prev.x, z: from.z - prev.z }, { x: to.x - from.x, z: to.z - from.z }) : null;
+  // the old final leg now ends at a corner-less bend: it keeps cornerOf = null (the arrival face), the new leg is the approach
+  const length = route.length + d;
+  return {
+    ...route,
+    points: [...route.points, { x: to.x, z: to.z }],
+    length,
+    durationSec: length / WALKING_SPEED,
+    legs: [...route.legs, { from, to: { x: to.x, z: to.z }, distance: d, turn, cornerOf: null }],
+    arrival: { x: to.x, z: to.z },
+  };
+}
+
+/**
  * Shortest walking route from `start` to the goal. Returns language-neutral legs; Persian wording lives in
  * campus-route-fa.ts. `graph` may be cached by the caller (buildCampusGraph is the expensive part).
  */
