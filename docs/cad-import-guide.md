@@ -1,107 +1,30 @@
-# CAD import guide (AutoCAD → web)
+# CAD import guide
 
-Target pipeline:
+Two data sources feed the one campus map:
 
 ```
-AutoCAD DWG → DXF (per floor) → Blender → GLB (per floor) → Three.js (this app)
+site plan DWG ──► scripts/cad/dwg-dump.mjs ──► scripts/cad/build_campus.py ──► data/campus/campus-layout.json
+hand-drawn floor sketches ──► scripts/cad/campus-offices.json ──┐
+                                                                ├► scripts/cad/build_interiors.py ──► data/indoor/*.json ──► (scripts/generate-seed-sql.mjs ──► database/seed.sql)
+data/campus/campus-layout.json ─────────────────────────────────┘
 ```
 
-No real drawings are in this repository yet; the app runs on a procedural demo building. This guide describes how real drawings are brought in. Never guess dimensions, floor heights or room identities: take them from the drawings or from the drawing owner.
+Never guess dimensions, floor heights or room identities: take them from the drawings or from the drawing owner, and mark what you could not read.
 
-**Confidentiality.** DWG/DXF/.blend files are architectural source material. They are git-ignored by default (`input-assets/cad/**/*.dwg|*.dxf|*.bak`, `input-assets/blender/**/*.blend|*.blend1`). Do not commit or push them — even to a private repository — without explicit approval from the owner of the drawings. Never modify originals; work on copies.
+**Confidentiality.** DWG/DXF/.blend files and the parsed JSON of a DWG are architectural source material. They are git-ignored (`input-assets/cad/**/*.dwg|*.dxf|*.bak`, `input-assets/blender/**/*.blend|*.blend1`) and the parsed dump must stay **outside** the repository. Do not commit or push them — even to a private repository — without explicit approval from the owner of the drawings. Never modify originals; work on copies. What is committed is only derived data: `campus-layout.json` (outlines, doors, areas) and the interiors.
 
-## 0. Audit the drawings first
+## First floors of buildings 1, 2 and 3 (`build_interiors.py`)
 
-Put the files in `input-assets/cad/building-01/` and run (needs Python 3 and `ezdxf`: `pip install ezdxf`):
+The owner supplied hand-drawn sketches of the first floor of each of the three buildings: a list of rooms per building with the professors' names and fields. The three buildings are joined at first-floor level by **two sky bridges** (3 ↔ 2 and 2 ↔ 1). The owner marked the entrances on a screenshot: yellow = entrance of building 3 (from the yard), red = exit of building 3 onto the bridge towards building 2, blue = exit of building 2 onto the bridge towards building 1, brown = entrance of building 1 (from the yard). Building 2 has no door to the yard.
 
-```bash
-python3 scripts/audit_dxf.py input-assets/cad/building-01 -o docs/cad-audit-report.md
-```
+1. **Transcribe** the sketch into `scripts/cad/campus-offices.json`: per building, the order of the rooms along each side of the corridor (`north` / `south`, with the special tokens `@entrance` for the stair lobby at the yard door and `@bridge` for a bridge vestibule), and per room the `names`, `field` and `confidence`. Use `"confidence": "ok"` only for what was read clearly; handwriting in a phone photo is usually `"low"`. Rooms drawn without a name keep their number and have no person.
+2. **Generate**: `python3 -I scripts/cad/build_interiors.py` (needs `shapely`). The sketches are schematic, so the geometry is **designed**: each building keeps its real footprint from the site plan, gets a central corridor (an L for building 3), rooms are cut along it in the order of the sketch, the stair lobby sits at the owner-marked outdoor door and the bridge vestibules at the bridges (`bridge-3-2`, `bridge-2-1`, running north-south along x = −24.5). The first-floor walking surface is 3.6 m.
+3. **Outputs** in `data/indoor/`: `buildings`, `floors`, `rooms`, `departments` (one per professor, slug `office-<room>-<i>`), `department-services` (empty), `entrances`, `facilities`, `navigation-nodes`, `navigation-edges` (types `corridor`, `door`, `stairs`, `bridge`) and `interiors.json` (room/corridor polygons and bridge geometry for the 3D scene). Identifiers: building `campus-bN`, room `campus-bN-r<number>`, door node `campus-bN-d-<token>`.
+4. **Check**: `npx vitest run` (`tests/data/indoor-data.test.ts` validates every file against the Zod schemas, the graph and the references). Then `node scripts/generate-seed-sql.mjs` if the Supabase seed should follow.
 
-The audit reports layer names, entity counts, extents and units, and opens files read-only. Use it to check the items below before modelling. (`scripts/audit_dxf.py` is the audit script of this project; see its `--help` for options.) The generated report is a plain Markdown file that describes the drawings; review it before committing it, because it can reveal building details.
+The green area on the campus plan (between buildings 11 and 13, with the pond) is an open park with no professors, so it has no rooms.
 
-## 1. Export DWG to DXF
-
-In AutoCAD: *Save As → AutoCAD DXF*, preferably *AutoCAD 2018 DXF* (or R2013/R2010 ASCII DXF); ASCII DXF is the most widely readable. Keep the DWG untouched. Export one DXF **per floor** (next item) and, if wanted, a combined reference DXF.
-
-## 2. Separate floors
-
-- One drawing/DXF per floor: `floor-00.dxf` (ground), `floor-01.dxf`, `floor-02.dxf`, … matching the floor ids in the database/manifest.
-- Remove unrelated content: title blocks, dimensions, furniture, hatches, xrefs, sections/elevations. Use `PURGE` and `OVERKILL`, and bind or explode xrefs.
-- Record the verified **floor-to-floor height** and the **walking-surface elevation** of every floor (this becomes `floors.elevation`). Do not infer them.
-
-## 3. Required and recommended layers
-
-Use consistent layer names in every floor file:
-
-| Layer | Content | Status |
-| --- | --- | --- |
-| `WALL` | wall outlines/centre lines (closed polylines where possible) | required |
-| `ROOM` | one closed polyline per room (the room boundary) | required |
-| `DOOR` | door openings/blocks | required |
-| `CORRIDOR` | corridor boundaries / centre lines | required |
-| `STAIR` | stair outlines | required |
-| `ELEVATOR` | elevator shafts/cabins | required |
-| `ENTRANCE` | main/secondary entrances | recommended |
-| `TEXT` | room numbers/names as text/MTEXT placed inside the room polygon | recommended |
-| `WINDOW` | windows | optional |
-| `COLUMN` | columns | optional |
-
-## 4. Verify units and scale
-
-- Check `$INSUNITS` in the audit report (4 = millimeters, 5 = centimeters, 6 = meters). If it is 0 (unitless) confirm the unit with the drawing owner.
-- Measure a known dimension (e.g. a door ≈ 0.9–1.0 m, a corridor width given on the plan) and compare. Fix the scale **in the drawing/Blender**, never by eyeballing.
-- The web app uses **meters**. Convert at Blender import (e.g. millimeters → scale 0.001) and record the factor you applied in `input-assets/blender/building-01/README.md`.
-- Check extents: stray entities far from the building inflate bounds and shift the origin.
-
-## 5. Align the coordinate origin across floors
-
-All floors must share one origin and orientation, otherwise stairs, lifts and routes will not line up.
-
-- Choose a fixed reference (e.g. a structural column or the stair-core corner) that exists on every floor, and place it at the same drawing coordinates in every DXF. Alternatively use the building footprint centre, as the demo does.
-- App convention (`docs/3d-model-guide.md`): X east, Y up, Z south, meters, origin at the footprint centre at ground-floor walking level. Plan-view drawing axes are X/Y; they map to the app's X/Z (watch the sign of north/south).
-- Floor `n` is shifted vertically by its verified elevation; the plan origin must not move between floors.
-- Validate by overlaying all floors: stair cores and lift shafts must coincide.
-
-## 6. Identify walls, doors, corridors, rooms, stairs and elevators
-
-- Walls from `WALL` (extrude to the wall height).
-- Doors from `DOOR`: each door gives a room door node for navigation.
-- Corridors from `CORRIDOR`: centre lines drive the corridor/junction nodes.
-- Rooms from `ROOM` polygons; match each polygon with its label text from `TEXT` (point-in-polygon). Room identity (number, name) comes from the drawing text or the owner, never invented.
-- Stairs from `STAIR`, elevators from `ELEVATOR`: these produce the `stair`/`elevator` nodes and the vertical edges (`docs/navigation-guide.md`).
-- Any room that cannot be matched unambiguously is listed for manual review.
-
-## 7. Prepare geometry in Blender
-
-1. Import the DXF (Blender's DXF importer or a converted SVG/OBJ), scale to meters, set the world origin as chosen in (5).
-2. Per floor: build a floor slab and extrude walls; cut door openings; model stair and elevator volumes simply (they do not need detail).
-3. Make each room a **separate object** (a floor-plane/box mesh from the room polygon). Name it `ROOM_B01_F01_R03` (building 01, floor 01, room 03) — this is the `model_object_id`.
-4. Apply all transforms (rotation 0, scale 1), recalculate normals, delete loose geometry and duplicate vertices, keep the poly count low, reuse materials.
-5. Use simple PBR materials (the viewer highlights rooms through the emissive channel). Colours follow `src/lib/theme/tokens.ts`; the style is flat and calm.
-6. Keep one `.blend` per building under `input-assets/blender/building-01/` (git-ignored).
-
-## 8. Export optimised GLB files
-
-- One GLB per floor: `floor-00.glb`, `floor-01.glb`, … (and optionally `exterior.glb`).
-- Blender → *File → Export → glTF 2.0 (.glb)*: format GLB, `+Y Up`, *Apply Modifiers*, only the selected collection for that floor; include materials; no cameras/lights.
-- Compress with Draco (Blender's exporter option, or `gltf-transform`). The app ships the Draco decoder (`public/draco/`). KTX2 textures are not wired up in the loader in this MVP.
-- Check size and keep it small enough for mid-range mobile devices; floors are loaded lazily, so smaller per-floor files are better.
-
-## 9. Preserve stable room and object IDs
-
-- The object name is the link between the model and the database. Use the exact `model_object_id` stored for the room (`rooms.model_object_id`, unique) and list it in `objectMap` in `data/demo/model-manifest.json` (object name → room id).
-- Never rename or renumber objects after publishing; add new ids for new rooms.
-- Blender may append `.001` to duplicates; the loader strips a trailing `.NNN`, but avoid duplicates anyway.
-- After export, open the GLB in a viewer (or load it in the app) and confirm every object in `objectMap` exists (the viewer logs a warning for missing ones).
-
-## 10. Replace the demo model in the web app
-
-1. Copy the GLBs to `public/models/building-01/floors/` (and `exterior.glb` to `public/models/building-01/`).
-2. In `data/demo/model-manifest.json`, set `status` to `"available"` for each file and complete `objectMap`.
-3. Replace demo data with verified rooms, departments, navigation nodes and edges (nodes from step 6 in the real coordinate system). Clear `is_demo` on real records.
-4. `npm run dev` → open `/buildings/building-01`; check floors, exploded view, hover/click on rooms, and routes (`docs/3d-model-guide.md`, `docs/navigation-guide.md`).
-5. If a GLB fails to load, that floor automatically falls back to the procedural demo geometry; fix the file rather than relying on the fallback.
+To add another building's floor, give the building an entry in `campus-offices.json` and in the script's building table; its outdoor door comes from `doors` in `scripts/cad/campus-legend.json`.
 
 ## Campus site plan (DWG → `data/campus/campus-layout.json`)
 
@@ -134,15 +57,13 @@ What the script does, and what it deliberately does not do:
 
 Numbers 12, 13 and 15 have no outline and no name in the legend, so they remain unnamed, unclickable pins. Building 14 is «سالن شهید چمران» (owner-supplied). Run `npx vitest run tests/model/campus.test.ts tests/navigation/campus-route.test.ts` after regenerating.
 
-The indoor demo building (`building-01`) is **independent of the campus**; no real campus building has an indoor map until its floor plans are imported (sections 1–10 above), after which its campus entry gets `slug`/`buildingId`.
+Buildings 1, 2 and 3 have an indoor first floor (previous section); the other buildings have none yet, and a route to them ends at their door or nearest side. Building ids in the campus layout are `campus-bN` and tie each building to its indoor data (`campusKey(b) = b.id ?? b.slug ?? b.label`).
 
 ## Checklist
 
-- [ ] DWG originals untouched and **not committed**
-- [ ] DXF per floor, layers as above
-- [ ] Units, scale and floor elevations verified with the owner
-- [ ] Common origin across floors verified by overlay
-- [ ] Rooms matched to drawing text; unmatched list reviewed
-- [ ] Room objects named `ROOM_B01_F0N_R0M` and mapped in `objectMap`
-- [ ] GLBs exported (Y up, meters, applied transforms, Draco)
-- [ ] Manifest set to `available`; app verified in the browser
+- [ ] DWG originals untouched and **not committed**; the parsed dump kept outside the repo
+- [ ] Units, scale and the owner's legend verified
+- [ ] Doors and gates marked by the owner and snapped onto the outlines
+- [ ] Sketch transcription proofread (every `confidence: "low"` room checked with the owner)
+- [ ] `build_campus.py` and `build_interiors.py` re-run, `npx vitest run` green
+- [ ] App checked in the browser: search a room, follow the route from the gate, open the interior view

@@ -3,16 +3,16 @@
 ## Layers
 
 ```
- data/demo/*.json ──┐                      ┌── Supabase (RLS)
-                    ▼                      ▼
+ data/campus/*.json  data/indoor/*.json ──┐         ┌── Supabase (RLS)
+                                          ▼         ▼
         src/lib/data  (Zod schemas, demo-source, supabase-source, repository)
                     │  NavigatorData (server → DataProvider)
                     ▼
-        src/components/DataProvider.tsx  → lookups, nav graph, search index
+        src/components/DataProvider.tsx  → lookups, indoor graph, search index
         ┌───────────┼────────────────────────────┐
         ▼           ▼                            ▼
  src/lib/navigation  src/lib/search        src/lib/model
- (graph, A*, routes) (normalise + rank)    (layout, procedural, glb, viewerState)
+ (graph, A*, routes) (normalise + rank)    (campus, journey, camera, viewerState)
         │                                        │
         └──────────────► src/components/3d ◄─────┘   (React Three Fiber, rendering only)
                                   │
@@ -21,19 +21,19 @@
 
 Rules that keep the code maintainable:
 
-- `src/lib/navigation` has no React, Three.js or data-layer imports: it routes anything that matches `GraphNode`/`GraphEdge`.
-- `src/lib/model` is pure TypeScript (geometry descriptors, reducer, bounds). `src/components/3d` only turns that state into meshes. This is why the model logic is unit-testable without a GPU.
-- Demo content lives only in `data/demo/` and is loaded through `src/lib/data`. UI components never import JSON directly.
+- `src/lib/navigation` has no React, Three.js or data-layer imports: it routes anything that matches `GraphNode`/`GraphEdge`, and finds outdoor walks around obstacles.
+- `src/lib/model` is pure TypeScript (campus geometry, the journey planner, camera maths, reducer). `src/components/3d` only turns that state into meshes, which is why the logic is unit-testable without a GPU.
+- Content lives only in `data/campus/` and `data/indoor/` and is loaded through `src/lib/data`. UI components never import JSON directly.
 - Stable identifiers (`idSchema`: `^[A-Za-z0-9][A-Za-z0-9_-]*$`) link database rows, graph nodes and 3D objects.
 
 ## Data flow
 
 `src/app/layout.tsx` calls `getNavigatorData()` (`src/lib/data/repository.ts`, cached per request, `revalidate = 300`).
 
-- **Demo mode** (default): `loadDemoData()` parses `data/demo/*.json` with Zod.
-- **Supabase mode**: only when `NEXT_PUBLIC_DATA_MODE=supabase` *and* both Supabase variables exist (`useSupabaseData` in `src/lib/config.ts`). Rows are read with the anonymous client, so RLS limits them to published/active data. Rows that fail Zod validation are dropped and logged. On any load error the app falls back to demo data and logs a short message only.
+- **Local mode** (default): `loadDemoData()` parses `data/campus/campus-layout.json` and `data/indoor/*.json` with Zod (the function keeps its historical name).
+- **Supabase mode**: only when `NEXT_PUBLIC_DATA_MODE=supabase` *and* both Supabase variables exist (`useSupabaseData` in `src/lib/config.ts`). Rows are read with the anonymous client, so RLS limits them to published/active data. Rows that fail Zod validation are dropped and logged. On any load error the app falls back to the local data and logs a short message only.
 
-The 3D model manifest (`data/demo/model-manifest.json`) is **not** stored in the database in either mode.
+The campus plan and the sky bridges (`interiors.json`) are **not** stored in the database in either mode; they always come from the local files.
 
 The result is passed to `DataProvider` (client), which derives lookup maps, the navigation graph (`buildGraph`) and the search index once.
 
@@ -42,18 +42,19 @@ The result is passed to `DataProvider` (client), which derives lookup maps, the 
 | Route | Purpose |
 | --- | --- |
 | `/` | home: search, categories, campus preview, building list |
-| `/campus` | procedural 3D campus, clickable pilot building |
-| `/buildings/[slug]` | 3D building viewer (deep links: `?room=`, `?dept=`, `&navigate=1`, `&from=<nodeId>`) |
+| `/campus` | **the** map: campus, first floors of buildings 1-3, search and the route from the gate to a room (deep links: `?room=<room id>`, `?dept=<department slug>`, `?building=<slug or id>`) |
 | `/search` | search page |
-| `/directions` | resolves `?to=<department slug or room id>` and redirects to the viewer with route planning |
-| `/departments/[slug]` | department details |
+| `/departments/[slug]` | person/unit details with "show on map" (links to `/campus?dept=`) |
+| `/buildings/[slug]`, `/directions` | redirects to `/campus` with the same intent |
 | `/admin/login`, `/admin` | restricted admin (see below) |
 
-## 3D viewer
+## One journey
 
-Orthographic isometric camera (`ISO_DIRECTION = (1,1,1)`) with drei `OrbitControls`; the render loop is demand-driven (floors animate with frame-rate independent damping and the scene only invalidates while something moves). `dpr={[1, 1.75]}` caps pixel ratio. WebGL is probed once (`useWebGLSupport`); without WebGL a fallback is shown and search/department pages still work. Errors are caught by `SceneErrorBoundary`; a failing GLB floor is caught per floor by `FloorModelBoundary`. See `docs/3d-model-guide.md`.
+`src/lib/model/journey.ts` (`planJourney`) joins the two engines into one walk from a university gate to a room: the outdoor leg (`routeFromEntrance`, visibility graph + Dijkstra) to the door of an entrance building, then the indoor leg (`computeRoute`, A\* over the indoor graph with `door`, `stairs` and `bridge` edges). A room whose building has a street door is entered there; a room in a building without one (building 2) is reached through whichever entrance building gives the shortest total, over a sky bridge. The result carries ordered steps (outdoor first, then indoor), total meters and time, the outdoor polyline and the indoor 3D points, which `CampusExplorer` draws as one route.
 
-Exploded view is a visualisation offset only: `offset(floor) = rank × distance` (distance 0–14 m, default 6 m). It is added by `FloorGroup` on top of real elevations and never enters room coordinates or the navigation graph.
+## 3D scene
+
+See `docs/3d-model-guide.md`. Orthographic isometric camera, demand-driven rendering, WebGL probe with fallback, `SceneErrorBoundary`.
 
 ## Navigation
 
@@ -69,13 +70,13 @@ See `docs/navigation-guide.md`. The engine returns structured steps; Persian wor
 - **Server**: every admin page and Server Action (`src/lib/admin/*`) calls `getStaffContext()`, which validates the session with `auth.getUser()` and reads the role from `public.profiles`. The browser never supplies a role. Inputs are whitelisted by resource and validated with Zod before any write (`prepareWrite`). `src/lib/admin/permissions.ts` mirrors the RLS rules so actions fail early; RLS remains authoritative.
 - **Proxy** (`src/proxy.ts`): refreshes the Supabase session cookie for `/admin*` and optimistically redirects signed-out visitors to `/admin/login`. It is a convenience, not the security boundary.
 - **No service-role key** is used anywhere. Writes run as the signed-in user.
-- **Demo admin**: only when `NODE_ENV === "development"`, `NEXT_PUBLIC_DEMO_ADMIN=true` and Supabase is not used. No password, `localStorage` only, never in production.
+- **Local admin mode**: only when `NODE_ENV === "development"`, `NEXT_PUBLIC_DEMO_ADMIN=true` and Supabase is not used. No password, `localStorage` only, never in production.
 - Errors shown to users are generic Persian messages (`friendlyDbError`); details are logged server-side with the error code only.
 
 ## Admin panel
 
-`/admin` modes (`getAdminMode()`): `supabase` (real auth), `demo-local` (development only) or `setup-required`. One generic editor (`ResourceEditor`) renders every resource from the declarative table in `src/lib/admin/fields.ts`; the resource ↔ table mapping is in `src/lib/data/resources.ts`.
+`/admin` modes (`getAdminMode()`): `supabase` (real auth), `demo-local` (development only, local state) or `setup-required`. One generic editor (`ResourceEditor`) renders every resource from the declarative table in `src/lib/admin/fields.ts`; the resource ↔ table mapping is in `src/lib/data/resources.ts`.
 
 ## Tests
 
-`tests/` contains Vitest suites for demo data and Zod validation, the procedural model / exploded view / viewer state / route geometry / GLB name mapping (pure logic), navigation and search. See the README for how to run them.
+`tests/` contains Vitest suites for the indoor data and Zod validation, the campus plan, the journey planner, viewer state and camera (pure logic), navigation (indoor, bridges, outdoor), search, security, and a headless render of the real 3D scene. See the README for how to run them.

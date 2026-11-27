@@ -37,7 +37,7 @@ export default async function DepartmentPage({ params }: { params: Promise<Param
   const services = (lookups.servicesByDepartment.get(dept.id) ?? []).map((s) => s.serviceName);
   const roommates = room ? (lookups.departmentsByRoom.get(room.id) ?? []).filter((d) => d.id !== dept.id && d.isActive) : [];
 
-  const mapHref = building ? `/buildings/${building.slug}?dept=${dept.slug}` : null;
+  const mapHref = building ? `/campus?dept=${dept.slug}` : null;
   const navHref = mapHref ? `${mapHref}&navigate=1` : null;
   const canRoute = Boolean(room?.doorNodeId);
 
@@ -125,11 +125,6 @@ export default async function DepartmentPage({ params }: { params: Promise<Param
           </section>
         )}
 
-        {dept.isDemo && (
-          <p className="rounded-xl bg-orange-100 p-3 text-xs leading-6 text-gray-700">
-            این صفحه نمونه (دمو) است؛ نام، مکان و خدمات فرضی‌اند و اطلاعات رسمی دانشگاه نیستند. تلفن و ساعت کاری عمداً ثبت نشده‌اند.
-          </p>
-        )}
       </article>
     </main>
     <Footer />

@@ -1,0 +1,422 @@
+{
+  "_note": "Rooms of the first floor of buildings 1, 2 and 3, transcribed from the owner's hand-drawn sketches (photos, low resolution). Room numbers and the order of the rooms follow the sketches; the geometry is designed by scripts/cad/build_interiors.py to fit each building's real footprint. confidence: 'ok' = read clearly, 'low' = hard to read in the photo, please proofread. Rooms without 'names' were drawn but have no name in the notes.",
+  "buildings": {
+    "1": {
+      "layout": "corridor-two-sides",
+      "north": [
+        "400",
+        "402",
+        "404",
+        "406",
+        "408",
+        "@bridge",
+        "410",
+        "412",
+        "414"
+      ],
+      "south": [
+        "401",
+        "403",
+        "405",
+        "wc-1",
+        "@entrance",
+        "407",
+        "409",
+        "411",
+        "413",
+        "wc-2"
+      ],
+      "rooms": {
+        "400": {
+          "names": [
+            "انوشه لطیفی"
+          ],
+          "field": "مکانیک",
+          "confidence": "low"
+        },
+        "401": {
+          "names": [
+            "بهمن بابایار"
+          ],
+          "field": "ریاضی",
+          "confidence": "low"
+        },
+        "402": {
+          "names": [
+            "سعید حسین‌زاده"
+          ],
+          "field": "برق",
+          "confidence": "low"
+        },
+        "403": {
+          "names": [
+            "مهدی صالحی"
+          ],
+          "field": "مکانیک",
+          "confidence": "low"
+        },
+        "404": {
+          "names": [
+            "بهجت پورامیری",
+            "لیلا انواری"
+          ],
+          "field": "مکانیک",
+          "confidence": "low"
+        },
+        "405": {
+          "names": [
+            "مهیار دهدست"
+          ],
+          "field": "برق",
+          "confidence": "low"
+        },
+        "406": {
+          "names": [
+            "حسین پورکاسیان",
+            "علی تقوی"
+          ],
+          "field": "عمومی",
+          "confidence": "low"
+        },
+        "407": {
+          "names": [
+            "محمد کریمی"
+          ],
+          "field": "عمومی",
+          "confidence": "low"
+        },
+        "408": {
+          "names": [
+            "جواد راسخی",
+            "حمیدرضا نوروزی‌لو"
+          ],
+          "field": "مکاترونیک",
+          "confidence": "low"
+        },
+        "409": {
+          "names": [
+            "مهرزاد محبانی"
+          ],
+          "field": "ریاضی",
+          "confidence": "low"
+        },
+        "410": {
+          "names": [
+            "خدیجه ربیعی",
+            "بهناز بهنام",
+            "زهرا صیقلی"
+          ],
+          "field": "ریاضی",
+          "confidence": "low"
+        },
+        "411": {
+          "names": [
+            "بهمن حضوری"
+          ],
+          "field": "ریاضی",
+          "confidence": "low"
+        },
+        "412": {
+          "names": [
+            "فاطمه‌سادات لسانی"
+          ],
+          "field": "کامپیوتر",
+          "confidence": "low"
+        },
+        "413": {
+          "names": []
+        },
+        "414": {
+          "names": []
+        }
+      },
+      "service": {
+        "wc-1": {
+          "kind": "restroom",
+          "name": "سرویس بهداشتی"
+        },
+        "wc-2": {
+          "kind": "restroom",
+          "name": "سرویس بهداشتی"
+        }
+      }
+    },
+    "2": {
+      "layout": "corridor-two-sides",
+      "north": [
+        "429",
+        "428",
+        "427",
+        "426",
+        "425",
+        "@bridge",
+        "431",
+        "430",
+        "420"
+      ],
+      "south": [
+        "tool",
+        "416",
+        "417",
+        "418",
+        "415",
+        "@bridge",
+        "424",
+        "423",
+        "422",
+        "421",
+        "419"
+      ],
+      "rooms": {
+        "415": {
+          "names": []
+        },
+        "416": {
+          "names": [
+            "آقایی",
+            "محمدرضا مرجانی"
+          ],
+          "confidence": "low"
+        },
+        "417": {
+          "names": [
+            "عبدالرضا کرمی"
+          ],
+          "confidence": "low"
+        },
+        "418": {
+          "names": [],
+          "kind": "meeting",
+          "name": "سالن کنفرانس",
+          "confidence": "low"
+        },
+        "419": {
+          "names": [
+            "تبخیری"
+          ],
+          "confidence": "low"
+        },
+        "420": {
+          "names": []
+        },
+        "421": {
+          "names": [
+            "مرتضی مجلل"
+          ],
+          "confidence": "low"
+        },
+        "422": {
+          "names": [
+            "فرین اقبال",
+            "رجانی‌فرد"
+          ],
+          "confidence": "low"
+        },
+        "423": {
+          "names": [
+            "نرگس صادق‌زاده",
+            "حانیه مودبی"
+          ],
+          "confidence": "low"
+        },
+        "424": {
+          "names": [
+            "عبدالرضا رسولی",
+            "علی کوهستانی"
+          ],
+          "confidence": "low"
+        },
+        "425": {
+          "names": []
+        },
+        "426": {
+          "names": [
+            "بختیاری‌دوست",
+            "عطارزاده"
+          ],
+          "confidence": "low"
+        },
+        "427": {
+          "names": [
+            "حیدریان"
+          ],
+          "confidence": "low"
+        },
+        "428": {
+          "names": [
+            "بایرامعلی محمدزاد"
+          ],
+          "confidence": "low"
+        },
+        "429": {
+          "names": [
+            "امیراردلان فشی",
+            "موکری"
+          ],
+          "title": "دکتر",
+          "confidence": "low"
+        },
+        "430": {
+          "names": [
+            "علیرضا حریری ایرج"
+          ],
+          "confidence": "ok"
+        },
+        "431": {
+          "names": [
+            "سعید امیریان",
+            "قنبری"
+          ],
+          "confidence": "low"
+        }
+      },
+      "service": {
+        "tool": {
+          "kind": "other",
+          "name": "ابزارخانه"
+        }
+      }
+    },
+    "3": {
+      "layout": "corridor-two-sides",
+      "rooms": {
+        "432": {
+          "names": [
+            "ملایی",
+            "محمدی‌فراه"
+          ],
+          "field": "انرژی",
+          "confidence": "low"
+        },
+        "433": {
+          "names": []
+        },
+        "434": {
+          "names": [
+            "رسول صفوریان",
+            "محمدرضا جعفری"
+          ],
+          "field": "مکانیک",
+          "confidence": "low"
+        },
+        "435": {
+          "names": [
+            "مجید مصری"
+          ],
+          "field": "انرژی",
+          "confidence": "low"
+        },
+        "436": {
+          "names": [
+            "مهدی بکرانی"
+          ],
+          "field": "برق",
+          "confidence": "low"
+        },
+        "437": {
+          "names": [
+            "مهدی سلطانی"
+          ],
+          "field": "فنی مهندسی",
+          "confidence": "low"
+        },
+        "438": {
+          "names": [
+            "جواد شوشتری"
+          ],
+          "field": "برق",
+          "confidence": "low"
+        },
+        "439": {
+          "names": [
+            "محمود تشی"
+          ],
+          "field": "کامپیوتر",
+          "confidence": "low"
+        },
+        "440": {
+          "names": [
+            "مهدی محسنی"
+          ],
+          "field": "مکانیک",
+          "confidence": "low"
+        },
+        "441": {
+          "names": [
+            "جعفر خادم‌زاده"
+          ],
+          "field": "پلیمر",
+          "confidence": "low"
+        },
+        "442": {
+          "names": [
+            "داریوش نیازی"
+          ],
+          "field": "برق",
+          "confidence": "low"
+        },
+        "443": {
+          "names": [
+            "عبدالرضا کرمی"
+          ],
+          "field": "عمران",
+          "confidence": "low"
+        },
+        "444": {
+          "names": [
+            "محسن شجری"
+          ],
+          "field": "پلیمر",
+          "confidence": "low"
+        },
+        "445": {
+          "names": [
+            "معصومی",
+            "آل‌عمران‌نژاد"
+          ],
+          "field": "ریاضی",
+          "confidence": "low"
+        },
+        "446": {
+          "names": [
+            "مهناز محمودی",
+            "فاطمه‌نژاد ابراهیم"
+          ],
+          "field": "پلیمر",
+          "confidence": "low"
+        },
+        "447": {
+          "names": [
+            "مرتضی پیرباش"
+          ],
+          "field": "عمران",
+          "confidence": "low"
+        }
+      },
+      "service": {},
+      "corridorV": 44.2,
+      "north": [
+        "439",
+        "447",
+        "446",
+        "445",
+        "444",
+        "@entrance",
+        "438",
+        "440",
+        "441",
+        "442",
+        "443"
+      ],
+      "south": [
+        "432",
+        "433",
+        "434",
+        "435",
+        "436",
+        "@bridge",
+        "437"
+      ]
+    }
+  }
+}

@@ -1,6 +1,7 @@
 import { loadDemoData } from "@/lib/data/demo-source";
 import { buildGraph } from "@/lib/navigation";
 
+/** The bundled campus data: site plan + the designed first floors of buildings 1, 2 and 3 (data/indoor). */
 export const data = loadDemoData();
 export const graph = buildGraph(data.nodes, data.edges);
 
@@ -10,10 +11,11 @@ export const roomDoor = (roomId: string): string => {
   return room.doorNodeId;
 };
 
-export const ENTRANCE = "n-f00-entrance";
-// Demo rooms (see scripts/generate-demo-data.mjs)
-export const EDUCATION = "b01-f00-r01"; // floor 0, north row
-export const STUDENT_AFFAIRS = "b01-f00-r02";
-export const STUDY_HALL = "b01-f00-r03"; // demo: threshold NOT marked accessible
-export const FINANCE = "b01-f01-r01";
-export const SECRETARIAT = "b01-f02-r01";
+// Outdoor entrances (owner-marked doors): building 3 and building 1. Building 2 has none, it is reached by sky bridge.
+export const ENTRANCE_B3 = "campus-b3-entrance";
+export const ENTRANCE_B1 = "campus-b1-entrance";
+export const ENTRANCE = ENTRANCE_B3;
+// First-floor offices on each building (see scripts/cad/campus-offices.json)
+export const B3_OFFICE_440 = "campus-b3-r440";
+export const B2_OFFICE_430 = "campus-b2-r430"; // علیرضا حریری ایرج
+export const B1_OFFICE_400 = "campus-b1-r400";

@@ -1,94 +1,48 @@
-# 3D model guide
+# 3D scene guide
 
-The viewer supports two modes and chooses per floor.
+There is **one** 3D scene: the campus (`/campus`, `src/components/3d/CampusScene.tsx`). The first floors of buildings 1-3 and the sky bridges between them are drawn inside it (`CampusInterior.tsx`) when a building is opened. There are no per-building GLB models and no manifest of model files; everything is generated from data.
 
-| Mode | When | Source |
+## Coordinate system
+
+Shared by the campus plan, room positions, navigation nodes and floor elevations:
+
+- **Units:** meters.
+- **X** east, **Y** up, **Z** south (Z = −northing). Right-handed with Y up.
+- **Origin:** the middle of the site plan drawing (the UTM georeference of the DWG is dropped).
+- A floor's `elevation` (table `floors`) is the Y of its walking surface. The ground floor is 0 and the first floor is **3.6 m**.
+- A footprint ring is a list of `{x, z}` points. Three.js shapes use `(x, −z)` and the mesh is rotated −90° about X, which puts a shape point back at world `(x, z)` (`footprintShapePoints` in `src/lib/model/campus.ts`).
+
+## What is drawn
+
+| Layer | Source | Notes |
 | --- | --- | --- |
-| **A — procedural demo** | the floor's manifest entry has `status: "unavailable"`, or its GLB failed to load | geometry generated from `procedural` in `data/demo/model-manifest.json` (`src/lib/model/procedural.ts`) |
-| **B — GLB** | the floor's manifest entry has `status: "available"` | `public/models/...` loaded with drei `useGLTF` (`src/components/3d/GlbFloor.tsx`) |
+| Ground, park, beds, lawns, pitch | `data/campus/campus-layout.json` (from the DWG) | green only where the plan says so |
+| Buildings | `footprint` + `trim` per building | heights = floors × 3.6 m, **estimated** (`heightIsEstimate`) |
+| Doors | `doors[{x, z, angle}]` per building | marked by the owner (yellow crosses), snapped onto the outline |
+| Gazebos | plan and owner marks | round and square |
+| Pond, trees | generated | **decorative**, seeded so every load looks the same |
+| First floors of buildings 1-3 | `data/indoor/interiors.json` | **designed** from the hand-drawn sketches, not surveyed |
+| Sky bridges | `interiors.bridges` | `bridge-3-2` and `bridge-2-1`, first-floor level |
 
-All paths and metadata come from `data/demo/model-manifest.json` (validated by `ModelManifestSchema` in `src/lib/data/schemas.ts`); no model path is hard-coded in components. Currently every entry is `"unavailable"`, no GLB file exists in the repository, and none should be faked.
+A building with no closed outline in the plan (12, 13, 15) is a pin, never an invented shape.
 
-## Coordinate convention
+## Opening a building (cutaway)
 
-Shared by room positions, navigation nodes, floor elevations, the procedural model and (required for) real GLB files:
+When a building with an indoor map is selected, is part of a route, or the "interior view" toggle is on, `CampusScene` draws it as a low ground-floor mass (no upper storeys, cornice or roof) and `CampusInterior` draws its first floor on top of it: corridor floor, room floors (one selectable mesh per room, named `interior-room:<roomId>`), instanced walls with a door gap at every room door, and the bridges. Hover and click report the room id; the indoor route is a ribbon over the corridor and bridge at their real elevations. Room-number labels are shown only for a single selected building, the destination and the hovered room (three buildings of labels overlap at the zoom of a whole-campus walk).
 
-| Axis | Meaning |
-| --- | --- |
-| X | horizontal axis one (east +) |
-| Y | vertical elevation (up +) |
-| Z | horizontal axis two (south +; −Z is "north" in plan view) |
+## Rendering notes
 
-- **Unit: meters.**
-- **Origin:** centre of the building footprint at ground-floor walking level (as stated in the manifest `coordinateSystem`).
-- Floor `elevation` (table `floors`) is the Y of the walking surface; demo floors are at 0, 4 and 8 m (`floorHeight` 4 m).
-- Exported GLB floors must already contain their real elevation in Y. The viewer does **not** move a GLB floor to its `elevation`; it only adds the exploded-view offset (see below). Floor 01's GLB must therefore have its slab at Y ≈ 4.
+- Orthographic isometric camera with drei `OrbitControls`; demand frameloop (the scene invalidates only while something changes). `dpr` is capped. See `src/lib/model/camera.ts` for the camera pose maths.
+- Walls and trees are instanced meshes; geometries and materials are created once and disposed on unmount.
+- Labels are DOM (`SceneLabel` over drei `Html`) so Persian text uses the page font; they never capture the pointer.
+- WebGL is probed once; without it the page shows a fallback and search still works. `SceneErrorBoundary` catches scene errors.
 
-glTF is natively Y-up, right-handed, in meters. Blender is Z-up: export with "+Y Up" (the exporter default) and verify that Blender's −Y maps to +Z south as described above. Document any other conversion you apply in `input-assets/blender/building-01/README.md` (see `docs/cad-import-guide.md`).
+## Honesty rules
 
-## Manifest
+- Names and room numbers were read from hand-written, low-resolution photos: they are `confidence: "low"` in `scripts/cad/campus-offices.json` (only office 430 was confirmed) and must be proofread.
+- Interior geometry is designed from the sketches and the shape of each footprint; it is not a survey.
+- Heights, the pond and the trees are visualisation only.
 
-Per building (`buildings[]`):
+## Testing
 
-```jsonc
-{
-  "buildingId": "building-01",
-  "exterior": { "path": "/models/building-01/exterior.glb", "status": "unavailable" },
-  "floors": [
-    { "floorId": "floor-00", "floorNumber": 0, "path": "/models/building-01/floors/floor-00.glb", "status": "unavailable" }
-    // ...
-  ],
-  "objectMap": { "ROOM_B01_F00_R01": "b01-f00-r01" /* object name -> room id */ },
-  "procedural": { /* layout of the demo building: footprint, floorHeight, rooms, stair/elevator cores, mainEntrance ... */ }
-}
-```
-
-Also at top level: `schemaVersion: 1`, `isDemo`, `units: "meters"`, `coordinateSystem` and the procedural `campus` (ground size, buildings, paths, trees).
-
-Notes (accurate as of this code):
-
-- `path` must start with `/` (files under `public/`, e.g. `public/models/building-01/floors/floor-00.glb` ⇒ `/models/building-01/floors/floor-00.glb`).
-- `procedural` is required by the schema even for a building that has real GLB files; it is used as the fallback and for default framing.
-- `exterior` is part of the manifest but the building viewer does not render it yet.
-- `buildings.model_url` / `floors.model_url` (editable in the admin panel; must start with `/` or `https://` and contain no `..`) are stored metadata. The viewer currently loads models from the manifest, not from these columns.
-- The manifest is local in both data modes; it is not read from Supabase.
-
-## Room ↔ record mapping
-
-Every room has a stable `id` (e.g. `b01-f01-r03`) and a unique `model_object_id` (e.g. `ROOM_B01_F01_R03`), which is the **name of the mesh/object** representing the room in the 3D model. `objectMap` maps those names to room ids. Convention: `ROOM_B<building>_F<floor>_R<room>` in upper case.
-
-Resolution (`src/lib/model/glb.ts`): a click/hover hit walks up the parent chain and matches each object's name (with a trailing Blender `.001`-style suffix stripped) against `objectMap`. So the room object may be a single mesh or a group of meshes. `missingRooms`/`indexRoomObjects` report objects declared in the map but absent from a file; `GlbFloor` surfaces this as a warning in the UI.
-
-Do not rename objects after publishing: the name is the link to the database record.
-
-## Exploded view
-
-`explodeOffsets()` in `src/lib/model/layout.ts`: `offset(floor) = rank × distance`, rank 0 being the lowest floor, distance clamped to 0–14 m (default 6). The ground floor stays at the base, floor order is preserved, and the value is a visualisation offset that is never written into room coordinates or the graph. `FloorGroup` animates it with exponential damping. A route is drawn per floor inside that floor's group, so it follows the explosion; vertical transfers are drawn as explicit connectors rather than lines through walls.
-
-## Lazy loading, fallback and cleanup
-
-- A floor that is hidden (isolated-floor mode with "hide other floors") mounts nothing, so its GLB is not requested. Floors load only when shown.
-- `GlbFloor` clones materials per instance (so highlighting one room never leaks to another floor), applies ghost/highlight as material changes (geometry is never modified), and on unmount disposes the cloned materials and geometries and calls `useGLTF.clear(path)`.
-- `FloorModelBoundary` catches a missing/corrupt file for that floor only and renders the procedural floor in its place; the explorer shows a notice that demo geometry is displayed.
-- Selecting rooms/ hovering is disabled on ghosted floors.
-
-## Draco and textures
-
-Draco-compressed GLB is supported. The decoder is copied from `node_modules/three/examples/jsm/libs/draco/gltf` to `public/draco/` by `scripts/copy-draco.mjs` (runs before `dev` and `build`) and is loaded from `/draco/`, so no CDN is needed. KTX2 textures are not wired into the loader in this MVP; use plain textures (or none — the demo style is flat-coloured).
-
-## Preparing a GLB for this viewer
-
-1. One GLB per floor, in building coordinates (see above), real elevation in Y.
-2. Name room objects `ROOM_B01_F01_R03` etc.; keep them as separate objects so they can be highlighted.
-3. Use `MeshStandardMaterial`-compatible materials (the highlight uses the emissive channel).
-4. Remove hidden/unused geometry, merge repeated geometry, reuse materials, apply transforms, and apply Draco compression.
-5. Place files under `public/models/building-01/floors/` and set the manifest `status` to `"available"`.
-6. Fill `objectMap` and check that no room is reported missing.
-
-## Replacing the demo model
-
-1. Export floor GLBs as above and copy them to `public/models/<building>/floors/floor-XX.glb`.
-2. Edit `data/demo/model-manifest.json`: set `status: "available"` for each floor, complete `objectMap`.
-3. Make sure the room records' `model_object_id` and the `objectMap` agree (a test, `tests/data/demo-data.test.ts`, checks this for the demo data).
-4. Replace demo rooms/nodes/edges with verified data (`docs/navigation-guide.md`), and turn off the `isDemo` flag on real records.
-5. Run `npm run dev`, open `/buildings/<slug>` and confirm: floors load, exploded view works, room hover/click map to the right records, and routes land inside the rooms.
+`tests/3d/scene.test.tsx` renders the real scene headlessly with `@react-three/test-renderer` (no GPU) and checks the scene graph: buildings, first floors, bridges, selectable rooms and the indoor route. Pixel output and GPU behaviour are not covered.

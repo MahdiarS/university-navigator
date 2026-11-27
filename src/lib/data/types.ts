@@ -1,6 +1,5 @@
 import type { z } from "zod";
 import type {
-  BuildingModelSchema,
   BuildingSchema,
   CampusSchema,
   DepartmentSchema,
@@ -8,11 +7,12 @@ import type {
   EntranceSchema,
   FacilitySchema,
   FloorSchema,
+  InteriorFloorSchema,
+  InteriorsSchema,
   ModelManifestSchema,
+  SkyBridgeSchema,
   NavEdgeSchema,
   NavNodeSchema,
-  ProceduralLayoutSchema,
-  ProceduralRoomLayoutSchema,
   RoomSchema,
 } from "./schemas";
 
@@ -26,9 +26,9 @@ export type Facility = z.infer<typeof FacilitySchema>;
 export type NavNode = z.infer<typeof NavNodeSchema>;
 export type NavEdge = z.infer<typeof NavEdgeSchema>;
 export type ModelManifest = z.infer<typeof ModelManifestSchema>;
-export type BuildingModel = z.infer<typeof BuildingModelSchema>;
-export type ProceduralLayout = z.infer<typeof ProceduralLayoutSchema>;
-export type ProceduralRoomLayout = z.infer<typeof ProceduralRoomLayoutSchema>;
+export type InteriorFloor = z.infer<typeof InteriorFloorSchema>;
+export type SkyBridge = z.infer<typeof SkyBridgeSchema>;
+export type Interiors = z.infer<typeof InteriorsSchema>;
 export type Campus = z.infer<typeof CampusSchema>;
 
 export type DataSourceKind = "demo" | "supabase";

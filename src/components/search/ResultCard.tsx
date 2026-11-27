@@ -5,10 +5,10 @@ import { buttonStyles } from "@/components/ui/Button";
 import type { SearchHit } from "@/lib/search/engine";
 import { toPersianDigits } from "@/lib/search/normalize";
 
-/** Where a search hit lives on the map (deep links understood by /buildings/[slug]). */
+/** Where a search hit lives on the map (deep links understood by /campus). */
 export function hitMapHref(hit: SearchHit, navigate = false): string {
   const target = hit.department ? `dept=${hit.department.slug}` : `room=${hit.room.id}`;
-  return `/buildings/${hit.building.slug}?${target}${navigate ? "&navigate=1" : ""}`;
+  return `/campus?${target}${navigate ? "&navigate=1" : ""}`;
 }
 
 /** Full-size result card for /search: where it is, what it offers, and the three actions. */

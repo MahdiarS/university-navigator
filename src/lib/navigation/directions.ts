@@ -54,6 +54,13 @@ export function buildDirections(graph: NavGraph, route: RouteSuccess): Direction
       continue;
     }
 
+    if (t.edge.edgeType === "bridge") {
+      flush();
+      steps.push({ kind: "bridge", floorId: a.floorId, distance: t.edge.distance, fromNodeId: a.id, toNodeId: b.id });
+      heading = { x: b.x - a.x, z: b.z - a.z };
+      continue;
+    }
+
     const h = { x: b.x - a.x, z: b.z - a.z };
     const length = Math.hypot(h.x, h.z);
     if (length === 0) {

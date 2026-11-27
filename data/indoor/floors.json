@@ -1,0 +1,56 @@
+[
+ {
+  "id": "campus-b1-f0",
+  "buildingId": "campus-b1",
+  "floorNumber": 0,
+  "displayName": "همکف",
+  "elevation": 0,
+  "modelUrl": null,
+  "isDemo": false
+ },
+ {
+  "id": "campus-b1-f1",
+  "buildingId": "campus-b1",
+  "floorNumber": 1,
+  "displayName": "طبقه اول",
+  "elevation": 3.6,
+  "modelUrl": null,
+  "isDemo": false
+ },
+ {
+  "id": "campus-b2-f0",
+  "buildingId": "campus-b2",
+  "floorNumber": 0,
+  "displayName": "همکف",
+  "elevation": 0,
+  "modelUrl": null,
+  "isDemo": false
+ },
+ {
+  "id": "campus-b2-f1",
+  "buildingId": "campus-b2",
+  "floorNumber": 1,
+  "displayName": "طبقه اول",
+  "elevation": 3.6,
+  "modelUrl": null,
+  "isDemo": false
+ },
+ {
+  "id": "campus-b3-f0",
+  "buildingId": "campus-b3",
+  "floorNumber": 0,
+  "displayName": "همکف",
+  "elevation": 0,
+  "modelUrl": null,
+  "isDemo": false
+ },
+ {
+  "id": "campus-b3-f1",
+  "buildingId": "campus-b3",
+  "floorNumber": 1,
+  "displayName": "طبقه اول",
+  "elevation": 3.6,
+  "modelUrl": null,
+  "isDemo": false
+ }
+]

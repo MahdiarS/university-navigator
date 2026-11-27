@@ -2,7 +2,6 @@
 import { ExternalLink, MapPin, Navigation, X } from "lucide-react";
 import Link from "next/link";
 import { useNavigator } from "@/components/DataProvider";
-import { DemoBadge } from "@/components/ui/Badge";
 import { Button, buttonStyles, IconButton } from "@/components/ui/Button";
 import { ContactFacts, ServiceChips } from "@/features/departments/DepartmentFacts";
 import type { Room } from "@/lib/data/types";
@@ -26,12 +25,11 @@ export function RoomDetails({
   room,
   onNavigate,
   onClose,
-  navigating,
 }: {
   room: Room;
-  onNavigate: (roomId: string) => void;
+  /** when given, shows the «مسیریابی» button */
+  onNavigate?: (roomId: string) => void;
   onClose: () => void;
-  navigating: boolean;
 }) {
   const { lookups } = useNavigator();
   const floor = lookups.floorsById.get(room.floorId);
@@ -45,7 +43,6 @@ export function RoomDetails({
           <p className="mb-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
             <MapPin className="size-3.5" aria-hidden />
             {building?.name} · {floor?.displayName} · اتاق {toPersianDigits(room.roomNumber)}
-            {room.isDemo && <DemoBadge />}
           </p>
           <h2 className="text-lg font-bold leading-7">{departments.length === 1 ? departments[0]!.name : room.name}</h2>
           <p className="text-xs text-gray-500">{ROOM_TYPE_FA[room.roomType] ?? ROOM_TYPE_FA.other}</p>
@@ -55,10 +52,12 @@ export function RoomDetails({
         </IconButton>
       </div>
 
-      <Button size="lg" className="w-full" onClick={() => onNavigate(room.id)} disabled={!room.doorNodeId && !navigating}>
-        <Navigation className="size-5" aria-hidden />
-        {room.doorNodeId ? "مسیریابی تا اینجا" : "مسیر این اتاق ثبت نشده است"}
-      </Button>
+      {onNavigate && (
+        <Button size="lg" className="w-full" onClick={() => onNavigate(room.id)} disabled={!room.doorNodeId}>
+          <Navigation className="size-5" aria-hidden />
+          {room.doorNodeId ? "مسیریابی تا اینجا" : "مسیر این اتاق ثبت نشده است"}
+        </Button>
+      )}
 
       {departments.length === 0 ? (
         <p className="rounded-xl bg-gray-100 p-3 text-sm text-gray-700">برای این اتاق واحد اداری ثبت نشده است.</p>

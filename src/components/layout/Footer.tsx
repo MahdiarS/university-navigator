@@ -7,7 +7,7 @@ export function Footer() {
         <p className="font-medium text-gray-700">
           {brand.productFa} <span className="ltr inline-block">· {brand.productEn}</span>
         </p>
-        <p>{brand.demoNotice}</p>
+        <p>{brand.dataNotice}</p>
         <p>
           این سامانه موقعیت‌یابی زنده (GPS) ندارد؛ نقطه شروع مسیر را خودتان انتخاب می‌کنید.
         </p>

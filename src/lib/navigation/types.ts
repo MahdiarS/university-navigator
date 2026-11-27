@@ -6,7 +6,7 @@
  * Z = horizontal axis two (south +; -Z is "north" in plan view).
  */
 export type NodeType = "entrance" | "corridor" | "junction" | "room-door" | "stair" | "elevator";
-export type EdgeType = "corridor" | "door" | "stairs" | "elevator";
+export type EdgeType = "corridor" | "door" | "stairs" | "elevator" | "bridge";
 
 export interface GraphNode {
   id: string;
@@ -147,5 +147,13 @@ export type DirectionStep =
       fromNodeId: string;
       toNodeId: string;
       accessible: boolean;
+    }
+  | {
+      /** crossing an enclosed sky bridge between two buildings */
+      kind: "bridge";
+      floorId: string;
+      distance: number;
+      fromNodeId: string;
+      toNodeId: string;
     }
   | { kind: "arrive"; nodeId: string; floorId: string };

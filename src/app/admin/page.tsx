@@ -7,7 +7,7 @@ import { SupabaseAdmin } from "@/features/admin/SupabaseAdmin";
 import { signOutAction } from "@/lib/admin/actions";
 import { getStaffContext } from "@/lib/admin/session";
 import { getAdminMode } from "@/lib/config";
-import manifestJson from "@data/demo/model-manifest.json";
+import { manifestInput } from "@/lib/data/demo-source";
 import { loadSupabaseData } from "@/lib/data/supabase-source";
 
 export default async function AdminPage() {
@@ -35,6 +35,6 @@ export default async function AdminPage() {
   }
 
   // Staff see every row (RLS staff-read policies), including inactive ones.
-  const data = await loadSupabaseData(ctx.client, manifestJson);
+  const data = await loadSupabaseData(ctx.client, manifestInput);
   return <SupabaseAdmin data={data} role={ctx.role} userLabel={ctx.fullName || ctx.user.email || ""} />;
 }

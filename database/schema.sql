@@ -189,7 +189,7 @@ create table if not exists public.navigation_edges (
   from_node_id   text not null references public.navigation_nodes (id) on delete cascade,
   to_node_id     text not null references public.navigation_nodes (id) on delete cascade,
   distance       numeric(9, 3) not null check (distance > 0 and distance <= 10000),
-  edge_type      text not null check (edge_type in ('corridor', 'door', 'stairs', 'elevator')),
+  edge_type      text not null check (edge_type in ('corridor', 'door', 'stairs', 'elevator', 'bridge')),
   -- true ONLY when the connection is explicitly verified as step-free; the router never assumes it
   accessible     boolean not null default false,
   bidirectional  boolean not null default true,

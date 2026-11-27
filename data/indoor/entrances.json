@@ -1,0 +1,24 @@
+[
+ {
+  "id": "entrance-campus-b1",
+  "buildingId": "campus-b1",
+  "floorId": "campus-b1-f0",
+  "name": "ورودی ساختمان ۱",
+  "positionX": -28.45,
+  "positionY": 0,
+  "positionZ": 96.91,
+  "nodeId": "campus-b1-entrance",
+  "isDemo": false
+ },
+ {
+  "id": "entrance-campus-b3",
+  "buildingId": "campus-b3",
+  "floorId": "campus-b3-f0",
+  "name": "ورودی ساختمان ۳",
+  "positionX": -35.76,
+  "positionY": 0,
+  "positionZ": 48.05,
+  "nodeId": "campus-b3-entrance",
+  "isDemo": false
+ }
+]

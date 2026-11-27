@@ -1,0 +1,1054 @@
+[
+ {
+  "id": "prof-campus-b1-400-1",
+  "roomId": "campus-b1-r400",
+  "name": "انوشه لطیفی",
+  "slug": "office-400-1",
+  "description": "دفتر ۴۰۰، طبقه اول ساختمان ۱ — گروه مکانیک",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "انوشه لطیفی",
+   "انوشه",
+   "لطیفی",
+   "400",
+   "۴۰۰",
+   "مکانیک"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-402-1",
+  "roomId": "campus-b1-r402",
+  "name": "سعید حسین‌زاده",
+  "slug": "office-402-1",
+  "description": "دفتر ۴۰۲، طبقه اول ساختمان ۱ — گروه برق",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "سعید حسین‌زاده",
+   "سعید",
+   "حسین‌زاده",
+   "402",
+   "۴۰۲",
+   "برق"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-404-1",
+  "roomId": "campus-b1-r404",
+  "name": "بهجت پورامیری",
+  "slug": "office-404-1",
+  "description": "دفتر ۴۰۴، طبقه اول ساختمان ۱ — گروه مکانیک",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "بهجت پورامیری",
+   "بهجت",
+   "پورامیری",
+   "404",
+   "۴۰۴",
+   "مکانیک"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-404-2",
+  "roomId": "campus-b1-r404",
+  "name": "لیلا انواری",
+  "slug": "office-404-2",
+  "description": "دفتر ۴۰۴، طبقه اول ساختمان ۱ — گروه مکانیک",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "لیلا انواری",
+   "لیلا",
+   "انواری",
+   "404",
+   "۴۰۴",
+   "مکانیک"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-406-1",
+  "roomId": "campus-b1-r406",
+  "name": "حسین پورکاسیان",
+  "slug": "office-406-1",
+  "description": "دفتر ۴۰۶، طبقه اول ساختمان ۱ — گروه عمومی",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "حسین پورکاسیان",
+   "حسین",
+   "پورکاسیان",
+   "406",
+   "۴۰۶",
+   "عمومی"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-406-2",
+  "roomId": "campus-b1-r406",
+  "name": "علی تقوی",
+  "slug": "office-406-2",
+  "description": "دفتر ۴۰۶، طبقه اول ساختمان ۱ — گروه عمومی",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "علی تقوی",
+   "علی",
+   "تقوی",
+   "406",
+   "۴۰۶",
+   "عمومی"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-408-1",
+  "roomId": "campus-b1-r408",
+  "name": "جواد راسخی",
+  "slug": "office-408-1",
+  "description": "دفتر ۴۰۸، طبقه اول ساختمان ۱ — گروه مکاترونیک",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "جواد راسخی",
+   "جواد",
+   "راسخی",
+   "408",
+   "۴۰۸",
+   "مکاترونیک"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-408-2",
+  "roomId": "campus-b1-r408",
+  "name": "حمیدرضا نوروزی‌لو",
+  "slug": "office-408-2",
+  "description": "دفتر ۴۰۸، طبقه اول ساختمان ۱ — گروه مکاترونیک",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "حمیدرضا نوروزی‌لو",
+   "حمیدرضا",
+   "نوروزی‌لو",
+   "408",
+   "۴۰۸",
+   "مکاترونیک"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-410-1",
+  "roomId": "campus-b1-r410",
+  "name": "خدیجه ربیعی",
+  "slug": "office-410-1",
+  "description": "دفتر ۴۱۰، طبقه اول ساختمان ۱ — گروه ریاضی",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "خدیجه ربیعی",
+   "خدیجه",
+   "ربیعی",
+   "410",
+   "۴۱۰",
+   "ریاضی"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-410-2",
+  "roomId": "campus-b1-r410",
+  "name": "بهناز بهنام",
+  "slug": "office-410-2",
+  "description": "دفتر ۴۱۰، طبقه اول ساختمان ۱ — گروه ریاضی",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "بهناز بهنام",
+   "بهناز",
+   "بهنام",
+   "410",
+   "۴۱۰",
+   "ریاضی"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-410-3",
+  "roomId": "campus-b1-r410",
+  "name": "زهرا صیقلی",
+  "slug": "office-410-3",
+  "description": "دفتر ۴۱۰، طبقه اول ساختمان ۱ — گروه ریاضی",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "زهرا صیقلی",
+   "زهرا",
+   "صیقلی",
+   "410",
+   "۴۱۰",
+   "ریاضی"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-412-1",
+  "roomId": "campus-b1-r412",
+  "name": "فاطمه‌سادات لسانی",
+  "slug": "office-412-1",
+  "description": "دفتر ۴۱۲، طبقه اول ساختمان ۱ — گروه کامپیوتر",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "فاطمه‌سادات لسانی",
+   "فاطمه‌سادات",
+   "لسانی",
+   "412",
+   "۴۱۲",
+   "کامپیوتر"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-401-1",
+  "roomId": "campus-b1-r401",
+  "name": "بهمن بابایار",
+  "slug": "office-401-1",
+  "description": "دفتر ۴۰۱، طبقه اول ساختمان ۱ — گروه ریاضی",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "بهمن بابایار",
+   "بهمن",
+   "بابایار",
+   "401",
+   "۴۰۱",
+   "ریاضی"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-403-1",
+  "roomId": "campus-b1-r403",
+  "name": "مهدی صالحی",
+  "slug": "office-403-1",
+  "description": "دفتر ۴۰۳، طبقه اول ساختمان ۱ — گروه مکانیک",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "مهدی صالحی",
+   "مهدی",
+   "صالحی",
+   "403",
+   "۴۰۳",
+   "مکانیک"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-405-1",
+  "roomId": "campus-b1-r405",
+  "name": "مهیار دهدست",
+  "slug": "office-405-1",
+  "description": "دفتر ۴۰۵، طبقه اول ساختمان ۱ — گروه برق",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "مهیار دهدست",
+   "مهیار",
+   "دهدست",
+   "405",
+   "۴۰۵",
+   "برق"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-407-1",
+  "roomId": "campus-b1-r407",
+  "name": "محمد کریمی",
+  "slug": "office-407-1",
+  "description": "دفتر ۴۰۷، طبقه اول ساختمان ۱ — گروه عمومی",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "محمد کریمی",
+   "محمد",
+   "کریمی",
+   "407",
+   "۴۰۷",
+   "عمومی"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-409-1",
+  "roomId": "campus-b1-r409",
+  "name": "مهرزاد محبانی",
+  "slug": "office-409-1",
+  "description": "دفتر ۴۰۹، طبقه اول ساختمان ۱ — گروه ریاضی",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "مهرزاد محبانی",
+   "مهرزاد",
+   "محبانی",
+   "409",
+   "۴۰۹",
+   "ریاضی"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b1-411-1",
+  "roomId": "campus-b1-r411",
+  "name": "بهمن حضوری",
+  "slug": "office-411-1",
+  "description": "دفتر ۴۱۱، طبقه اول ساختمان ۱ — گروه ریاضی",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "بهمن حضوری",
+   "بهمن",
+   "حضوری",
+   "411",
+   "۴۱۱",
+   "ریاضی"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-429-1",
+  "roomId": "campus-b2-r429",
+  "name": "دکتر امیراردلان فشی",
+  "slug": "office-429-1",
+  "description": "دفتر ۴۲۹، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "امیراردلان فشی",
+   "امیراردلان",
+   "فشی",
+   "429",
+   "۴۲۹"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-429-2",
+  "roomId": "campus-b2-r429",
+  "name": "دکتر موکری",
+  "slug": "office-429-2",
+  "description": "دفتر ۴۲۹، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "موکری",
+   "موکری",
+   "429",
+   "۴۲۹"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-428-1",
+  "roomId": "campus-b2-r428",
+  "name": "بایرامعلی محمدزاد",
+  "slug": "office-428-1",
+  "description": "دفتر ۴۲۸، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "بایرامعلی محمدزاد",
+   "بایرامعلی",
+   "محمدزاد",
+   "428",
+   "۴۲۸"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-427-1",
+  "roomId": "campus-b2-r427",
+  "name": "حیدریان",
+  "slug": "office-427-1",
+  "description": "دفتر ۴۲۷، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "حیدریان",
+   "حیدریان",
+   "427",
+   "۴۲۷"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-426-1",
+  "roomId": "campus-b2-r426",
+  "name": "بختیاری‌دوست",
+  "slug": "office-426-1",
+  "description": "دفتر ۴۲۶، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "بختیاری‌دوست",
+   "بختیاری‌دوست",
+   "426",
+   "۴۲۶"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-426-2",
+  "roomId": "campus-b2-r426",
+  "name": "عطارزاده",
+  "slug": "office-426-2",
+  "description": "دفتر ۴۲۶، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "عطارزاده",
+   "عطارزاده",
+   "426",
+   "۴۲۶"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-431-1",
+  "roomId": "campus-b2-r431",
+  "name": "سعید امیریان",
+  "slug": "office-431-1",
+  "description": "دفتر ۴۳۱، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "سعید امیریان",
+   "سعید",
+   "امیریان",
+   "431",
+   "۴۳۱"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-431-2",
+  "roomId": "campus-b2-r431",
+  "name": "قنبری",
+  "slug": "office-431-2",
+  "description": "دفتر ۴۳۱، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "قنبری",
+   "قنبری",
+   "431",
+   "۴۳۱"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-430-1",
+  "roomId": "campus-b2-r430",
+  "name": "علیرضا حریری ایرج",
+  "slug": "office-430-1",
+  "description": "دفتر ۴۳۰، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "علیرضا حریری ایرج",
+   "علیرضا",
+   "حریری",
+   "ایرج",
+   "430",
+   "۴۳۰"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-416-1",
+  "roomId": "campus-b2-r416",
+  "name": "آقایی",
+  "slug": "office-416-1",
+  "description": "دفتر ۴۱۶، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "آقایی",
+   "آقایی",
+   "416",
+   "۴۱۶"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-416-2",
+  "roomId": "campus-b2-r416",
+  "name": "محمدرضا مرجانی",
+  "slug": "office-416-2",
+  "description": "دفتر ۴۱۶، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "محمدرضا مرجانی",
+   "محمدرضا",
+   "مرجانی",
+   "416",
+   "۴۱۶"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-417-1",
+  "roomId": "campus-b2-r417",
+  "name": "عبدالرضا کرمی",
+  "slug": "office-417-1",
+  "description": "دفتر ۴۱۷، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "عبدالرضا کرمی",
+   "عبدالرضا",
+   "کرمی",
+   "417",
+   "۴۱۷"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-424-1",
+  "roomId": "campus-b2-r424",
+  "name": "عبدالرضا رسولی",
+  "slug": "office-424-1",
+  "description": "دفتر ۴۲۴، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "عبدالرضا رسولی",
+   "عبدالرضا",
+   "رسولی",
+   "424",
+   "۴۲۴"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-424-2",
+  "roomId": "campus-b2-r424",
+  "name": "علی کوهستانی",
+  "slug": "office-424-2",
+  "description": "دفتر ۴۲۴، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "علی کوهستانی",
+   "علی",
+   "کوهستانی",
+   "424",
+   "۴۲۴"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-423-1",
+  "roomId": "campus-b2-r423",
+  "name": "نرگس صادق‌زاده",
+  "slug": "office-423-1",
+  "description": "دفتر ۴۲۳، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "نرگس صادق‌زاده",
+   "نرگس",
+   "صادق‌زاده",
+   "423",
+   "۴۲۳"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-423-2",
+  "roomId": "campus-b2-r423",
+  "name": "حانیه مودبی",
+  "slug": "office-423-2",
+  "description": "دفتر ۴۲۳، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "حانیه مودبی",
+   "حانیه",
+   "مودبی",
+   "423",
+   "۴۲۳"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-422-1",
+  "roomId": "campus-b2-r422",
+  "name": "فرین اقبال",
+  "slug": "office-422-1",
+  "description": "دفتر ۴۲۲، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "فرین اقبال",
+   "فرین",
+   "اقبال",
+   "422",
+   "۴۲۲"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-422-2",
+  "roomId": "campus-b2-r422",
+  "name": "رجانی‌فرد",
+  "slug": "office-422-2",
+  "description": "دفتر ۴۲۲، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "رجانی‌فرد",
+   "رجانی‌فرد",
+   "422",
+   "۴۲۲"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-421-1",
+  "roomId": "campus-b2-r421",
+  "name": "مرتضی مجلل",
+  "slug": "office-421-1",
+  "description": "دفتر ۴۲۱، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "مرتضی مجلل",
+   "مرتضی",
+   "مجلل",
+   "421",
+   "۴۲۱"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b2-419-1",
+  "roomId": "campus-b2-r419",
+  "name": "تبخیری",
+  "slug": "office-419-1",
+  "description": "دفتر ۴۱۹، طبقه اول ساختمان ۲",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "تبخیری",
+   "تبخیری",
+   "419",
+   "۴۱۹"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-439-1",
+  "roomId": "campus-b3-r439",
+  "name": "محمود تشی",
+  "slug": "office-439-1",
+  "description": "دفتر ۴۳۹، طبقه اول ساختمان ۳ — گروه کامپیوتر",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "محمود تشی",
+   "محمود",
+   "تشی",
+   "439",
+   "۴۳۹",
+   "کامپیوتر"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-447-1",
+  "roomId": "campus-b3-r447",
+  "name": "مرتضی پیرباش",
+  "slug": "office-447-1",
+  "description": "دفتر ۴۴۷، طبقه اول ساختمان ۳ — گروه عمران",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "مرتضی پیرباش",
+   "مرتضی",
+   "پیرباش",
+   "447",
+   "۴۴۷",
+   "عمران"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-446-1",
+  "roomId": "campus-b3-r446",
+  "name": "مهناز محمودی",
+  "slug": "office-446-1",
+  "description": "دفتر ۴۴۶، طبقه اول ساختمان ۳ — گروه پلیمر",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "مهناز محمودی",
+   "مهناز",
+   "محمودی",
+   "446",
+   "۴۴۶",
+   "پلیمر"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-446-2",
+  "roomId": "campus-b3-r446",
+  "name": "فاطمه‌نژاد ابراهیم",
+  "slug": "office-446-2",
+  "description": "دفتر ۴۴۶، طبقه اول ساختمان ۳ — گروه پلیمر",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "فاطمه‌نژاد ابراهیم",
+   "فاطمه‌نژاد",
+   "ابراهیم",
+   "446",
+   "۴۴۶",
+   "پلیمر"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-445-1",
+  "roomId": "campus-b3-r445",
+  "name": "معصومی",
+  "slug": "office-445-1",
+  "description": "دفتر ۴۴۵، طبقه اول ساختمان ۳ — گروه ریاضی",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "معصومی",
+   "معصومی",
+   "445",
+   "۴۴۵",
+   "ریاضی"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-445-2",
+  "roomId": "campus-b3-r445",
+  "name": "آل‌عمران‌نژاد",
+  "slug": "office-445-2",
+  "description": "دفتر ۴۴۵، طبقه اول ساختمان ۳ — گروه ریاضی",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "آل‌عمران‌نژاد",
+   "آل‌عمران‌نژاد",
+   "445",
+   "۴۴۵",
+   "ریاضی"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-444-1",
+  "roomId": "campus-b3-r444",
+  "name": "محسن شجری",
+  "slug": "office-444-1",
+  "description": "دفتر ۴۴۴، طبقه اول ساختمان ۳ — گروه پلیمر",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "محسن شجری",
+   "محسن",
+   "شجری",
+   "444",
+   "۴۴۴",
+   "پلیمر"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-438-1",
+  "roomId": "campus-b3-r438",
+  "name": "جواد شوشتری",
+  "slug": "office-438-1",
+  "description": "دفتر ۴۳۸، طبقه اول ساختمان ۳ — گروه برق",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "جواد شوشتری",
+   "جواد",
+   "شوشتری",
+   "438",
+   "۴۳۸",
+   "برق"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-440-1",
+  "roomId": "campus-b3-r440",
+  "name": "مهدی محسنی",
+  "slug": "office-440-1",
+  "description": "دفتر ۴۴۰، طبقه اول ساختمان ۳ — گروه مکانیک",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "مهدی محسنی",
+   "مهدی",
+   "محسنی",
+   "440",
+   "۴۴۰",
+   "مکانیک"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-441-1",
+  "roomId": "campus-b3-r441",
+  "name": "جعفر خادم‌زاده",
+  "slug": "office-441-1",
+  "description": "دفتر ۴۴۱، طبقه اول ساختمان ۳ — گروه پلیمر",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "جعفر خادم‌زاده",
+   "جعفر",
+   "خادم‌زاده",
+   "441",
+   "۴۴۱",
+   "پلیمر"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-442-1",
+  "roomId": "campus-b3-r442",
+  "name": "داریوش نیازی",
+  "slug": "office-442-1",
+  "description": "دفتر ۴۴۲، طبقه اول ساختمان ۳ — گروه برق",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "داریوش نیازی",
+   "داریوش",
+   "نیازی",
+   "442",
+   "۴۴۲",
+   "برق"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-443-1",
+  "roomId": "campus-b3-r443",
+  "name": "عبدالرضا کرمی",
+  "slug": "office-443-1",
+  "description": "دفتر ۴۴۳، طبقه اول ساختمان ۳ — گروه عمران",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "عبدالرضا کرمی",
+   "عبدالرضا",
+   "کرمی",
+   "443",
+   "۴۴۳",
+   "عمران"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-432-1",
+  "roomId": "campus-b3-r432",
+  "name": "ملایی",
+  "slug": "office-432-1",
+  "description": "دفتر ۴۳۲، طبقه اول ساختمان ۳ — گروه انرژی",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "ملایی",
+   "ملایی",
+   "432",
+   "۴۳۲",
+   "انرژی"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-432-2",
+  "roomId": "campus-b3-r432",
+  "name": "محمدی‌فراه",
+  "slug": "office-432-2",
+  "description": "دفتر ۴۳۲، طبقه اول ساختمان ۳ — گروه انرژی",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "محمدی‌فراه",
+   "محمدی‌فراه",
+   "432",
+   "۴۳۲",
+   "انرژی"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-434-1",
+  "roomId": "campus-b3-r434",
+  "name": "رسول صفوریان",
+  "slug": "office-434-1",
+  "description": "دفتر ۴۳۴، طبقه اول ساختمان ۳ — گروه مکانیک",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "رسول صفوریان",
+   "رسول",
+   "صفوریان",
+   "434",
+   "۴۳۴",
+   "مکانیک"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-434-2",
+  "roomId": "campus-b3-r434",
+  "name": "محمدرضا جعفری",
+  "slug": "office-434-2",
+  "description": "دفتر ۴۳۴، طبقه اول ساختمان ۳ — گروه مکانیک",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "محمدرضا جعفری",
+   "محمدرضا",
+   "جعفری",
+   "434",
+   "۴۳۴",
+   "مکانیک"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-435-1",
+  "roomId": "campus-b3-r435",
+  "name": "مجید مصری",
+  "slug": "office-435-1",
+  "description": "دفتر ۴۳۵، طبقه اول ساختمان ۳ — گروه انرژی",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "مجید مصری",
+   "مجید",
+   "مصری",
+   "435",
+   "۴۳۵",
+   "انرژی"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-436-1",
+  "roomId": "campus-b3-r436",
+  "name": "مهدی بکرانی",
+  "slug": "office-436-1",
+  "description": "دفتر ۴۳۶، طبقه اول ساختمان ۳ — گروه برق",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "مهدی بکرانی",
+   "مهدی",
+   "بکرانی",
+   "436",
+   "۴۳۶",
+   "برق"
+  ],
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "prof-campus-b3-437-1",
+  "roomId": "campus-b3-r437",
+  "name": "مهدی سلطانی",
+  "slug": "office-437-1",
+  "description": "دفتر ۴۳۷، طبقه اول ساختمان ۳ — گروه فنی مهندسی",
+  "phone": null,
+  "workingHours": null,
+  "keywords": [
+   "مهدی سلطانی",
+   "مهدی",
+   "سلطانی",
+   "437",
+   "۴۳۷",
+   "فنی مهندسی"
+  ],
+  "isActive": true,
+  "isDemo": false
+ }
+]

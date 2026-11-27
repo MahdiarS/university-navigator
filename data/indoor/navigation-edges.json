@@ -1,0 +1,1252 @@
+[
+ {
+  "id": "e001",
+  "fromNode": "campus-b1-c-u-0613",
+  "toNode": "campus-b1-d-400-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e002",
+  "fromNode": "campus-b1-c-u-0576",
+  "toNode": "campus-b1-d-402-n",
+  "distance": 1.1,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e003",
+  "fromNode": "campus-b1-c-u-0533",
+  "toNode": "campus-b1-d-404-n",
+  "distance": 1.1,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e004",
+  "fromNode": "campus-b1-c-u-0491",
+  "toNode": "campus-b1-d-406-n",
+  "distance": 1.1,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e005",
+  "fromNode": "campus-b1-c-u-0449",
+  "toNode": "campus-b1-d-408-n",
+  "distance": 1.1,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e006",
+  "fromNode": "campus-b1-c-u-0405",
+  "toNode": "campus-b1-d-bridge-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e007",
+  "fromNode": "campus-b1-c-u-0362",
+  "toNode": "campus-b1-d-410-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e008",
+  "fromNode": "campus-b1-c-u-0320",
+  "toNode": "campus-b1-d-412-n",
+  "distance": 1.1,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e009",
+  "fromNode": "campus-b1-c-u-0283",
+  "toNode": "campus-b1-d-414-n",
+  "distance": 1.1,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e010",
+  "fromNode": "campus-b1-c-u-0616",
+  "toNode": "campus-b1-d-401-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e011",
+  "fromNode": "campus-b1-c-u-0584",
+  "toNode": "campus-b1-d-403-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e012",
+  "fromNode": "campus-b1-c-u-0548",
+  "toNode": "campus-b1-d-405-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e013",
+  "fromNode": "campus-b1-c-u-0511",
+  "toNode": "campus-b1-d-wc-1-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e014",
+  "fromNode": "campus-b1-c-u-0469",
+  "toNode": "campus-b1-d-entrance-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e015",
+  "fromNode": "campus-b1-c-u-0426",
+  "toNode": "campus-b1-d-407-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e016",
+  "fromNode": "campus-b1-c-u-0388",
+  "toNode": "campus-b1-d-409-s",
+  "distance": 1.1,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e017",
+  "fromNode": "campus-b1-c-u-0351",
+  "toNode": "campus-b1-d-411-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e018",
+  "fromNode": "campus-b1-c-u-0313",
+  "toNode": "campus-b1-d-413-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e019",
+  "fromNode": "campus-b1-c-u-0280",
+  "toNode": "campus-b1-d-wc-2-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e020",
+  "fromNode": "campus-b1-c-u-0616",
+  "toNode": "campus-b1-c-u-0613",
+  "distance": 0.3,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e021",
+  "fromNode": "campus-b1-c-u-0613",
+  "toNode": "campus-b1-c-u-0584",
+  "distance": 2.87,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e022",
+  "fromNode": "campus-b1-c-u-0584",
+  "toNode": "campus-b1-c-u-0576",
+  "distance": 0.87,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e023",
+  "fromNode": "campus-b1-c-u-0576",
+  "toNode": "campus-b1-c-u-0548",
+  "distance": 2.79,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e024",
+  "fromNode": "campus-b1-c-u-0548",
+  "toNode": "campus-b1-c-u-0533",
+  "distance": 1.45,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e025",
+  "fromNode": "campus-b1-c-u-0533",
+  "toNode": "campus-b1-c-u-0511",
+  "distance": 2.22,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e026",
+  "fromNode": "campus-b1-c-u-0511",
+  "toNode": "campus-b1-c-u-0491",
+  "distance": 2.03,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e027",
+  "fromNode": "campus-b1-c-u-0491",
+  "toNode": "campus-b1-c-u-0469",
+  "distance": 2.2,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e028",
+  "fromNode": "campus-b1-c-u-0469",
+  "toNode": "campus-b1-c-u-0449",
+  "distance": 2.04,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e029",
+  "fromNode": "campus-b1-c-u-0449",
+  "toNode": "campus-b1-c-u-0426",
+  "distance": 2.25,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e030",
+  "fromNode": "campus-b1-c-u-0426",
+  "toNode": "campus-b1-c-u-0405",
+  "distance": 2.07,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e031",
+  "fromNode": "campus-b1-c-u-0405",
+  "toNode": "campus-b1-c-u-0388",
+  "distance": 1.71,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e032",
+  "fromNode": "campus-b1-c-u-0388",
+  "toNode": "campus-b1-c-u-0362",
+  "distance": 2.62,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e033",
+  "fromNode": "campus-b1-c-u-0362",
+  "toNode": "campus-b1-c-u-0351",
+  "distance": 1.16,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e034",
+  "fromNode": "campus-b1-c-u-0351",
+  "toNode": "campus-b1-c-u-0320",
+  "distance": 3.09,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e035",
+  "fromNode": "campus-b1-c-u-0320",
+  "toNode": "campus-b1-c-u-0313",
+  "distance": 0.7,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e036",
+  "fromNode": "campus-b1-c-u-0313",
+  "toNode": "campus-b1-c-u-0283",
+  "distance": 3.04,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e037",
+  "fromNode": "campus-b1-c-u-0283",
+  "toNode": "campus-b1-c-u-0280",
+  "distance": 0.23,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e038",
+  "fromNode": "campus-b1-entrance",
+  "toNode": "campus-b1-stair-ground",
+  "distance": 2.52,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e039",
+  "fromNode": "campus-b1-stair-ground",
+  "toNode": "campus-b1-stair-first",
+  "distance": 7.0,
+  "edgeType": "stairs",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e040",
+  "fromNode": "campus-b1-stair-first",
+  "toNode": "campus-b1-c-u-0469",
+  "distance": 3.66,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e041",
+  "fromNode": "campus-b1-stair-first",
+  "toNode": "campus-b1-d-entrance-s",
+  "distance": 2.55,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e042",
+  "fromNode": "campus-b2-c-u-0657",
+  "toNode": "campus-b2-d-429-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e043",
+  "fromNode": "campus-b2-c-u-0601",
+  "toNode": "campus-b2-d-428-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e044",
+  "fromNode": "campus-b2-c-u-0540",
+  "toNode": "campus-b2-d-427-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e045",
+  "fromNode": "campus-b2-c-u-0480",
+  "toNode": "campus-b2-d-426-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e046",
+  "fromNode": "campus-b2-c-u-0419",
+  "toNode": "campus-b2-d-425-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e047",
+  "fromNode": "campus-b2-c-u-0366",
+  "toNode": "campus-b2-d-bridge-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e048",
+  "fromNode": "campus-b2-c-u-0322",
+  "toNode": "campus-b2-d-431-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e049",
+  "fromNode": "campus-b2-c-u-0278",
+  "toNode": "campus-b2-d-430-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e050",
+  "fromNode": "campus-b2-c-u-0240",
+  "toNode": "campus-b2-d-420-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e051",
+  "fromNode": "campus-b2-c-u-0660",
+  "toNode": "campus-b2-d-tool-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e052",
+  "fromNode": "campus-b2-c-u-0610",
+  "toNode": "campus-b2-d-416-s",
+  "distance": 1.1,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e053",
+  "fromNode": "campus-b2-c-u-0554",
+  "toNode": "campus-b2-d-417-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e054",
+  "fromNode": "campus-b2-c-u-0499",
+  "toNode": "campus-b2-d-418-s",
+  "distance": 1.1,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e055",
+  "fromNode": "campus-b2-c-u-0444",
+  "toNode": "campus-b2-d-415-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e056",
+  "fromNode": "campus-b2-c-u-0394",
+  "toNode": "campus-b2-d-bridge-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e057",
+  "fromNode": "campus-b2-c-u-0356",
+  "toNode": "campus-b2-d-424-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e058",
+  "fromNode": "campus-b2-c-u-0324",
+  "toNode": "campus-b2-d-423-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e059",
+  "fromNode": "campus-b2-c-u-0292",
+  "toNode": "campus-b2-d-422-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e060",
+  "fromNode": "campus-b2-c-u-0260",
+  "toNode": "campus-b2-d-421-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e061",
+  "fromNode": "campus-b2-c-u-0234",
+  "toNode": "campus-b2-d-419-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e062",
+  "fromNode": "campus-b2-c-u-0660",
+  "toNode": "campus-b2-c-u-0657",
+  "distance": 0.28,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e063",
+  "fromNode": "campus-b2-c-u-0657",
+  "toNode": "campus-b2-c-u-0610",
+  "distance": 4.77,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e064",
+  "fromNode": "campus-b2-c-u-0610",
+  "toNode": "campus-b2-c-u-0601",
+  "distance": 0.84,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e065",
+  "fromNode": "campus-b2-c-u-0601",
+  "toNode": "campus-b2-c-u-0554",
+  "distance": 4.71,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e066",
+  "fromNode": "campus-b2-c-u-0554",
+  "toNode": "campus-b2-c-u-0540",
+  "distance": 1.4,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e067",
+  "fromNode": "campus-b2-c-u-0540",
+  "toNode": "campus-b2-c-u-0499",
+  "distance": 4.15,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e068",
+  "fromNode": "campus-b2-c-u-0499",
+  "toNode": "campus-b2-c-u-0480",
+  "distance": 1.95,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e069",
+  "fromNode": "campus-b2-c-u-0480",
+  "toNode": "campus-b2-c-u-0444",
+  "distance": 3.59,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e070",
+  "fromNode": "campus-b2-c-u-0444",
+  "toNode": "campus-b2-c-u-0419",
+  "distance": 2.51,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e071",
+  "fromNode": "campus-b2-c-u-0419",
+  "toNode": "campus-b2-c-u-0394",
+  "distance": 2.46,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e072",
+  "fromNode": "campus-b2-c-u-0394",
+  "toNode": "campus-b2-c-u-0366",
+  "distance": 2.8,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e073",
+  "fromNode": "campus-b2-c-u-0366",
+  "toNode": "campus-b2-c-u-0356",
+  "distance": 1.01,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e074",
+  "fromNode": "campus-b2-c-u-0356",
+  "toNode": "campus-b2-c-u-0324",
+  "distance": 3.2,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e075",
+  "fromNode": "campus-b2-c-u-0324",
+  "toNode": "campus-b2-c-u-0322",
+  "distance": 0.2,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e076",
+  "fromNode": "campus-b2-c-u-0322",
+  "toNode": "campus-b2-c-u-0292",
+  "distance": 2.99,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e077",
+  "fromNode": "campus-b2-c-u-0292",
+  "toNode": "campus-b2-c-u-0278",
+  "distance": 1.4,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e078",
+  "fromNode": "campus-b2-c-u-0278",
+  "toNode": "campus-b2-c-u-0260",
+  "distance": 1.8,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e079",
+  "fromNode": "campus-b2-c-u-0260",
+  "toNode": "campus-b2-c-u-0240",
+  "distance": 2.1,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e080",
+  "fromNode": "campus-b2-c-u-0240",
+  "toNode": "campus-b2-c-u-0234",
+  "distance": 0.61,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e081",
+  "fromNode": "campus-b3-c-u-0616",
+  "toNode": "campus-b3-d-439-n",
+  "distance": 1.1,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e082",
+  "fromNode": "campus-b3-c-u-0587",
+  "toNode": "campus-b3-d-447-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e083",
+  "fromNode": "campus-b3-c-u-0553",
+  "toNode": "campus-b3-d-446-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e084",
+  "fromNode": "campus-b3-c-u-0519",
+  "toNode": "campus-b3-d-445-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e085",
+  "fromNode": "campus-b3-c-u-0486",
+  "toNode": "campus-b3-d-444-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e086",
+  "fromNode": "campus-b3-c-u-0445",
+  "toNode": "campus-b3-d-entrance-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e087",
+  "fromNode": "campus-b3-c-u-0405",
+  "toNode": "campus-b3-d-438-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e088",
+  "fromNode": "campus-b3-c-u-0373",
+  "toNode": "campus-b3-d-440-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e089",
+  "fromNode": "campus-b3-c-u-0342",
+  "toNode": "campus-b3-d-441-n",
+  "distance": 1.1,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e090",
+  "fromNode": "campus-b3-c-u-0310",
+  "toNode": "campus-b3-d-442-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e091",
+  "fromNode": "campus-b3-c-u-0283",
+  "toNode": "campus-b3-d-443-n",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e092",
+  "fromNode": "campus-b3-c-u-0606",
+  "toNode": "campus-b3-d-432-s",
+  "distance": 1.1,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e093",
+  "fromNode": "campus-b3-c-u-0559",
+  "toNode": "campus-b3-d-433-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e094",
+  "fromNode": "campus-b3-c-u-0507",
+  "toNode": "campus-b3-d-434-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e095",
+  "fromNode": "campus-b3-c-u-0455",
+  "toNode": "campus-b3-d-435-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e096",
+  "fromNode": "campus-b3-c-u-0403",
+  "toNode": "campus-b3-d-436-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e097",
+  "fromNode": "campus-b3-c-u-0355",
+  "toNode": "campus-b3-d-bridge-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e098",
+  "fromNode": "campus-b3-c-u-0303",
+  "toNode": "campus-b3-d-437-s",
+  "distance": 1.11,
+  "edgeType": "door",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e099",
+  "fromNode": "campus-b3-c-u-0616",
+  "toNode": "campus-b3-c-u-0606",
+  "distance": 0.92,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e100",
+  "fromNode": "campus-b3-c-u-0606",
+  "toNode": "campus-b3-c-u-0587",
+  "distance": 1.96,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e101",
+  "fromNode": "campus-b3-c-u-0587",
+  "toNode": "campus-b3-c-u-0559",
+  "distance": 2.74,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e102",
+  "fromNode": "campus-b3-c-u-0559",
+  "toNode": "campus-b3-c-u-0553",
+  "distance": 0.64,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e103",
+  "fromNode": "campus-b3-c-u-0553",
+  "toNode": "campus-b3-c-u-0519",
+  "distance": 3.38,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e104",
+  "fromNode": "campus-b3-c-u-0519",
+  "toNode": "campus-b3-c-u-0507",
+  "distance": 1.2,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e105",
+  "fromNode": "campus-b3-c-u-0507",
+  "toNode": "campus-b3-c-u-0486",
+  "distance": 2.18,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e106",
+  "fromNode": "campus-b3-c-u-0486",
+  "toNode": "campus-b3-c-u-0455",
+  "distance": 3.03,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e107",
+  "fromNode": "campus-b3-c-u-0455",
+  "toNode": "campus-b3-c-u-0445",
+  "distance": 1.07,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e108",
+  "fromNode": "campus-b3-c-u-0445",
+  "toNode": "campus-b3-c-u-0405",
+  "distance": 3.99,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e109",
+  "fromNode": "campus-b3-c-u-0405",
+  "toNode": "campus-b3-c-u-0403",
+  "distance": 0.15,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e110",
+  "fromNode": "campus-b3-c-u-0403",
+  "toNode": "campus-b3-c-u-0373",
+  "distance": 3.03,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e111",
+  "fromNode": "campus-b3-c-u-0373",
+  "toNode": "campus-b3-c-u-0355",
+  "distance": 1.78,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e112",
+  "fromNode": "campus-b3-c-u-0355",
+  "toNode": "campus-b3-c-u-0342",
+  "distance": 1.4,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e113",
+  "fromNode": "campus-b3-c-u-0342",
+  "toNode": "campus-b3-c-u-0310",
+  "distance": 3.18,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e114",
+  "fromNode": "campus-b3-c-u-0310",
+  "toNode": "campus-b3-c-u-0303",
+  "distance": 0.7,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e115",
+  "fromNode": "campus-b3-c-u-0303",
+  "toNode": "campus-b3-c-u-0283",
+  "distance": 1.98,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e116",
+  "fromNode": "campus-b3-entrance",
+  "toNode": "campus-b3-stair-ground",
+  "distance": 1.47,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e117",
+  "fromNode": "campus-b3-stair-ground",
+  "toNode": "campus-b3-stair-first",
+  "distance": 7.0,
+  "edgeType": "stairs",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e118",
+  "fromNode": "campus-b3-stair-first",
+  "toNode": "campus-b3-c-u-0445",
+  "distance": 2.63,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e119",
+  "fromNode": "campus-b3-stair-first",
+  "toNode": "campus-b3-d-entrance-n",
+  "distance": 1.52,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e120",
+  "fromNode": "campus-b3-d-bridge-s",
+  "toNode": "bridge-3-2-a",
+  "distance": 7.57,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e121",
+  "fromNode": "bridge-3-2-a",
+  "toNode": "bridge-3-2-b",
+  "distance": 5.43,
+  "edgeType": "bridge",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e122",
+  "fromNode": "bridge-3-2-b",
+  "toNode": "campus-b2-d-bridge-n",
+  "distance": 6.8,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e123",
+  "fromNode": "campus-b2-d-bridge-s",
+  "toNode": "bridge-2-1-a",
+  "distance": 4.98,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e124",
+  "fromNode": "bridge-2-1-a",
+  "toNode": "bridge-2-1-b",
+  "distance": 5.77,
+  "edgeType": "bridge",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ },
+ {
+  "id": "e125",
+  "fromNode": "bridge-2-1-b",
+  "toNode": "campus-b1-d-bridge-n",
+  "distance": 4.38,
+  "edgeType": "corridor",
+  "accessible": false,
+  "bidirectional": true,
+  "isDemo": false
+ }
+]

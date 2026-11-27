@@ -7,6 +7,8 @@ export interface DirectionContext {
   /** Human name for a node: room name for room doors, label otherwise. */
   nodeName(nodeId: string): string;
   floorName(floorId: string): string;
+  /** Human name of a building (for «از پل هوایی وارد ساختمان ۲ شوید»). */
+  buildingName?(buildingId: string): string;
 }
 
 const TURN_TEXT: Record<Turn, string> = {
@@ -30,7 +32,7 @@ export function describeStep(step: DirectionStep, ctx: DirectionContext): string
       if (to?.type === "stair") landmark = " تا راه‌پله";
       else if (to?.type === "elevator") landmark = " تا آسانسور";
       else if (to?.type === "room-door") landmark = ` تا ${ctx.nodeName(step.toNodeId)}`;
-      else if (to?.type === "junction") landmark = " تا تقاطع راهرو";
+      else if (to?.type === "junction") landmark = to.label?.includes("پل هوایی") ? " تا پل هوایی" : " تا تقاطع راهرو";
       const prefix = step.turn ? `${TURN_TEXT[step.turn]} ` : "";
       return `${prefix}حدود ${formatMeters(step.distance)} مستقیم بروید${landmark}`;
     }
@@ -38,6 +40,11 @@ export function describeStep(step: DirectionStep, ctx: DirectionContext): string
       const means = step.via === "elevator" ? "آسانسور" : "راه‌پله";
       const dir = step.direction === "up" ? "بالا بروید" : "پایین بروید";
       return `با ${means} به ${ctx.floorName(step.toFloorId)} ${dir}`;
+    }
+    case "bridge": {
+      const to = ctx.node(step.toNodeId);
+      const where = to && ctx.buildingName ? ` و وارد ${ctx.buildingName(to.buildingId)} شوید` : "";
+      return `از پل هوایی (حدود ${formatMeters(step.distance)}) عبور کنید${where}`;
     }
     case "arrive":
       return `به مقصد رسیدید: ${ctx.nodeName(step.nodeId)}`;

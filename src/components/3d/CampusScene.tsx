@@ -21,6 +21,7 @@ import type { CameraCommand } from "@/lib/model/viewerState";
 import { colors, sceneColors } from "@/lib/theme/tokens";
 import { CameraRig } from "./CameraRig";
 import { CampusScenery } from "./CampusScenery";
+import { CampusInterior, type CampusInteriorProps } from "./CampusInterior";
 import { SceneLabel } from "./SceneLabel";
 
 export interface CampusSceneRoute {
@@ -40,6 +41,8 @@ export interface CampusSceneProps {
   route?: CampusSceneRoute | null;
   /** entrance the route starts from (highlighted label) */
   routeStartId?: string | null;
+  /** first-floor interiors, sky bridges and the indoor route (buildings that have an indoor map) */
+  interior?: CampusInteriorProps;
   /** slow turntable for the home page preview: no zoom/pan, nothing is clickable */
   preview?: boolean;
 }
@@ -68,6 +71,7 @@ export function CampusScene({
   cameraCommand,
   route,
   routeStartId,
+  interior,
   preview = false,
 }: CampusSceneProps) {
   const invalidate = useThree((s) => s.invalidate);
@@ -113,6 +117,8 @@ export function CampusScene({
       string,
       {
         body: ExtrudeGeometry;
+        /** ground-floor mass only (used when the first floor of the building is opened) */
+        low: ExtrudeGeometry | null;
         plinth: ExtrudeGeometry;
         bands: ExtrudeGeometry[];
         cornice: ExtrudeGeometry;
@@ -126,8 +132,10 @@ export function CampusScene({
       const trim = shapeOf(b.trim ?? b.footprint);
       const h = b.size.height;
       const storeys = Math.max(1, b.floors ?? Math.round(h / STOREY));
+      const interiorFloor = interior?.interiors.floors.find((f) => f.buildingId === b.id);
       map.set(campusKey(b), {
         body: new ExtrudeGeometry(body, { depth: h, bevelEnabled: false }),
+        low: interiorFloor ? new ExtrudeGeometry(body, { depth: interiorFloor.elevation, bevelEnabled: false }) : null,
         plinth: new ExtrudeGeometry(trim, { depth: 0.7, bevelEnabled: false }),
         bands: Array.from({ length: storeys }, () => new ExtrudeGeometry(trim, { depth: 1.5, bevelEnabled: false })),
         cornice: new ExtrudeGeometry(trim, { depth: 0.35, bevelEnabled: false }),
@@ -136,11 +144,12 @@ export function CampusScene({
       });
     }
     return map;
-  }, [campus.buildings]);
+  }, [campus.buildings, interior?.interiors.floors]);
   useEffect(
     () => () => {
       for (const g of footprints.values()) {
         g.body.dispose();
+        g.low?.dispose();
         g.plinth.dispose();
         g.cornice.dispose();
         g.roof.dispose();
@@ -180,11 +189,11 @@ export function CampusScene({
           onPointerOver: (e: { stopPropagation(): void }) => {
             e.stopPropagation();
             onHover(campusKey(b));
-            document.body.style.cursor = "pointer";
+            if (typeof document !== "undefined") document.body.style.cursor = "pointer";
           },
           onPointerOut: () => {
             onHover(null);
-            document.body.style.cursor = "";
+            if (typeof document !== "undefined") document.body.style.cursor = "";
           },
           onClick: (e: { stopPropagation(): void }) => {
             e.stopPropagation();
@@ -243,11 +252,13 @@ export function CampusScene({
         if (geometry && b.footprint) {
           // real footprint: the Shape lives in XY, so rotate -90deg about X to stand it up (see footprintShapePoints)
           const up = [-Math.PI / 2, 0, 0] as const;
+          // first floor opened: keep the ground-floor mass, cut away the upper storey and the roof
+          const cut = !preview && !!geometry.low && !!b.id && !!interior?.openBuildingIds.has(b.id);
           return (
             <group key={key} name={`campus-building-group:${key}`}>
               <mesh
                 name={`campus-building:${key}`}
-                geometry={geometry.body}
+                geometry={cut ? geometry.low! : geometry.body}
                 material={material}
                 rotation={up}
                 castShadow
@@ -257,32 +268,51 @@ export function CampusScene({
               />
               <mesh geometry={geometry.plinth} material={res.plinth} rotation={up} castShadow raycast={none} />
               {b.trim &&
-                geometry.bands.map((g, i) => (
-                  <mesh key={i} geometry={g} material={res.glass} rotation={up} position={[0, i * STOREY + 1.05, 0]} raycast={none} />
-                ))}
-              <mesh geometry={geometry.cornice} material={res.cornice} rotation={up} position={[0, h - 0.35, 0]} raycast={none} />
-              <mesh
-                geometry={geometry.roof}
-                material={selected ? res.roofSelected : hovered ? res.roofHover : res.roof}
-                rotation={up}
-                position={[0, h, 0]}
-                castShadow
-                raycast={none}
-              />
-              <RoofUnits
-                x={b.position.x}
-                z={b.position.z}
-                h={h + 0.45}
-                w={Math.min(w, d)}
-                unit={res.unit}
-                material={res.unitBox}
-                seed={b.number ?? 0}
-              />
+                geometry.bands.map((g, i) =>
+                  cut && i > 0 ? null : (
+                    <mesh key={i} geometry={g} material={res.glass} rotation={up} position={[0, i * STOREY + 1.05, 0]} raycast={none} />
+                  ),
+                )}
+              {!cut && (
+                <>
+                  <mesh geometry={geometry.cornice} material={res.cornice} rotation={up} position={[0, h - 0.35, 0]} raycast={none} />
+                  <mesh
+                    geometry={geometry.roof}
+                    material={selected ? res.roofSelected : hovered ? res.roofHover : res.roof}
+                    rotation={up}
+                    position={[0, h, 0]}
+                    castShadow
+                    raycast={none}
+                  />
+                  <RoofUnits
+                    x={b.position.x}
+                    z={b.position.z}
+                    h={h + 0.45}
+                    w={Math.min(w, d)}
+                    unit={res.unit}
+                    material={res.unitBox}
+                    seed={b.number ?? 0}
+                  />
+                </>
+              )}
               {!preview && (
-                <SceneLabel position={[b.position.x, h + 4, b.position.z]} tone={tone}>
+                <SceneLabel position={[b.position.x, cut ? 9 : h + 4, b.position.z]} tone={tone}>
                   {labelText}
                 </SceneLabel>
               )}
+              {b.doors?.map((door, i) => (
+                <group key={i} position={[door.x, 0, door.z]} rotation={[0, door.angle ?? 0, 0]}>
+                  <mesh
+                    geometry={res.unit}
+                    material={res.entrance}
+                    position={[0, 1.1, 0]}
+                    scale={[2.4, 2.2, 0.7]}
+                    raycast={none}
+                    name="campus-door-marker"
+                  />
+                  <mesh geometry={res.unit} material={res.entrance} position={[0, 0.06, 0.9]} scale={[3.2, 0.12, 1.6]} raycast={none} />
+                </group>
+              ))}
             </group>
           );
         }
@@ -319,78 +349,10 @@ export function CampusScene({
           );
         }
 
-        // legacy procedural demo campus: axis-aligned box with roof slab and floor bands
-        return (
-          <group key={key} position={[b.position.x, 0, b.position.z]}>
-            <mesh
-              name={b.slug ? `campus-building:${b.slug}` : "campus-building:placeholder"}
-              geometry={res.unit}
-              material={material}
-              position={[0, h / 2, 0]}
-              scale={[w, h, d]}
-              castShadow
-              receiveShadow
-              raycast={interactive ? undefined : none}
-              {...hoverHandlers(b, interactive)}
-            />
-            <mesh
-              geometry={res.unit}
-              material={res.roof}
-              position={[0, h + 0.2, 0]}
-              scale={[w + 0.6, 0.4, d + 0.6]}
-              castShadow
-              raycast={none}
-            />
-            {b.clickable &&
-              [1 / 3, 2 / 3].map((f) => (
-                <mesh
-                  key={f}
-                  geometry={res.unit}
-                  material={res.band}
-                  position={[0, h * f, 0]}
-                  scale={[w + 0.12, 0.18, d + 0.12]}
-                  raycast={none}
-                />
-              ))}
-            {!preview && (
-              <SceneLabel position={[0, h + 3, 0]} tone={tone}>
-                {b.label}
-              </SceneLabel>
-            )}
-            {b.doors?.map((door, i) => (
-              <group key={i} position={[door.x - b.position.x, 0, door.z - b.position.z]} rotation={[0, door.angle ?? 0, 0]}>
-                {/* door leaf + a lintel, standing proud of the wall so it reads from above and from the side */}
-                <mesh
-                  geometry={res.unit}
-                  material={res.entrance}
-                  position={[0, 1.1, 0]}
-                  scale={[2.4, 2.2, 0.7]}
-                  raycast={none}
-                  name="campus-door-marker"
-                />
-                <mesh geometry={res.unit} material={res.entrance} position={[0, 0.06, 0.9]} scale={[3.2, 0.12, 1.6]} raycast={none} />
-              </group>
-            ))}
-            {!b.doors && b.entrance && (
-              <group position={[b.entrance.x - b.position.x, 0, b.entrance.z - b.position.z]}>
-                <mesh
-                  geometry={res.unit}
-                  material={res.entrance}
-                  position={[0, 0.5, 0]}
-                  scale={[3.2, 1, 0.6]}
-                  raycast={none}
-                  name="campus-entrance-marker"
-                />
-                {!preview && (
-                  <SceneLabel position={[0, 2.6, 0]} tone="start">
-                    ورودی اصلی
-                  </SceneLabel>
-                )}
-              </group>
-            )}
-          </group>
-        );
+        return null;
       })}
+
+      {interior && !preview && <CampusInterior {...interior} />}
 
       {(campus.entrances ?? []).map((e) => (
         <group key={e.id} position={[e.x, 0, e.z]}>

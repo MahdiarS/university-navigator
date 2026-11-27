@@ -1,16 +1,14 @@
 "use client";
-import { FlaskConical, Landmark, Map, Menu, Search, ShieldCheck, X, Building2 } from "lucide-react";
+import { Landmark, Map, Menu, Search, ShieldCheck, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { useNavigator } from "@/components/DataProvider";
-import { brand, PILOT_BUILDING_SLUG } from "@/lib/brand";
+import { brand } from "@/lib/brand";
 import { cn } from "@/lib/utils/cn";
 
 const links = [
   { href: "/", label: "خانه", icon: Landmark },
-  { href: "/campus", label: "پردیس", icon: Map },
-  { href: `/buildings/${PILOT_BUILDING_SLUG}`, label: "ساختمان", icon: Building2 },
+  { href: "/campus", label: "پردیس و ساختمان‌ها", icon: Map },
   { href: "/search", label: "جستجو", icon: Search },
 ] as const;
 
@@ -39,9 +37,7 @@ function Brand() {
 
 export function Header() {
   const pathname = usePathname();
-  const { data } = useNavigator();
   const [open, setOpen] = useState(false);
-  const isDemo = data.manifest.isDemo || data.source === "demo";
 
   return (
     <header className="relative z-40 shrink-0">
@@ -105,14 +101,6 @@ export function Header() {
         </nav>
       )}
 
-      {isDemo && (
-        <div role="note" className="flex items-center gap-2 bg-orange-100 px-4 py-1.5 text-xs text-gray-700 md:px-6">
-          <FlaskConical className="size-3.5 shrink-0 text-orange-500" aria-hidden />
-          <span className="truncate md:whitespace-normal" title={brand.demoNotice}>
-            {brand.demoNotice}
-          </span>
-        </div>
-      )}
     </header>
   );
 }

@@ -8,7 +8,7 @@ import type { NavigatorData } from "./types";
 
 /**
  * Data access entry point for server components.
- * - demo mode (default): local, validated sample data from data/demo.
+ * - demo mode (default): local, validated data from data/indoor and data/campus.
  * - supabase mode: published data through the anon client (RLS-protected).
  * If Supabase is requested but unreachable, we fall back to demo data and say so via `source`.
  */

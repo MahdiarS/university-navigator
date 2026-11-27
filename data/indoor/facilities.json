@@ -1,0 +1,42 @@
+[
+ {
+  "id": "campus-b1-fac-wc-1",
+  "floorId": "campus-b1-f1",
+  "facilityType": "restroom",
+  "name": "سرویس بهداشتی",
+  "positionX": -33.14,
+  "positionY": 3.6,
+  "positionZ": 95.03,
+  "isDemo": false
+ },
+ {
+  "id": "campus-b1-fac-wc-2",
+  "floorId": "campus-b1-f1",
+  "facilityType": "restroom",
+  "name": "سرویس بهداشتی",
+  "positionX": -10.56,
+  "positionY": 3.6,
+  "positionZ": 90.47,
+  "isDemo": false
+ },
+ {
+  "id": "campus-b1-fac-stairs",
+  "floorId": "campus-b1-f1",
+  "facilityType": "stairs",
+  "name": "راه‌پله ساختمان ۱",
+  "positionX": -28.94,
+  "positionY": 3.6,
+  "positionZ": 94.44,
+  "isDemo": false
+ },
+ {
+  "id": "campus-b3-fac-stairs",
+  "floorId": "campus-b3-f1",
+  "facilityType": "stairs",
+  "name": "راه‌پله ساختمان ۳",
+  "positionX": -35.47,
+  "positionY": 3.6,
+  "positionZ": 49.49,
+  "isDemo": false
+ }
+]

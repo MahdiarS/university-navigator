@@ -1,0 +1,29 @@
+[
+ {
+  "id": "campus-b1",
+  "name": "ساختمان ۱",
+  "slug": "building-1",
+  "description": "طبقه همکف: آزمایشگاه؛ طبقه بالا: دفتر اساتید",
+  "modelUrl": null,
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "campus-b2",
+  "name": "ساختمان ۲",
+  "slug": "building-2",
+  "description": "طبقه همکف: آزمایشگاه؛ طبقه بالا: دفتر اساتید",
+  "modelUrl": null,
+  "isActive": true,
+  "isDemo": false
+ },
+ {
+  "id": "campus-b3",
+  "name": "ساختمان ۳",
+  "slug": "building-3",
+  "description": "طبقه همکف: کلاس‌های فارابی؛ طبقه بالا: دفتر اساتید",
+  "modelUrl": null,
+  "isActive": true,
+  "isDemo": false
+ }
+]

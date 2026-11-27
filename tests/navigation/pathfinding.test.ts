@@ -10,27 +10,18 @@ import {
   type GraphNode,
   type RouteSuccess,
 } from "@/lib/navigation";
-import {
-  ENTRANCE,
-  EDUCATION,
-  FINANCE,
-  SECRETARIAT,
-  STUDENT_AFFAIRS,
-  STUDY_HALL,
-  data,
-  graph,
-  roomDoor,
-} from "./helpers";
+import { B1_OFFICE_400, B2_OFFICE_430, B3_OFFICE_440, ENTRANCE_B1, ENTRANCE_B3, data, graph, roomDoor } from "./helpers";
+
+const buildingsOf = (r: RouteSuccess): string[] => r.nodes.map((n) => n.buildingId).filter((b, i, a) => i === 0 || b !== a[i - 1]);
 
 const ok = (r: ReturnType<typeof computeRoute>): RouteSuccess => {
   if (r.status !== "ok") throw new Error(`expected ok route, got ${r.status}`);
   return r;
 };
 
-describe("demo navigation graph", () => {
+describe("campus indoor navigation graph (first floors of buildings 1-3 + sky bridges)", () => {
   it("has no integrity errors and is fully connected", () => {
-    const issues = validateGraph(data.nodes, data.edges);
-    expect(issues).toEqual([]);
+    expect(validateGraph(data.nodes, data.edges)).toEqual([]);
   });
 
   it("keeps the A* heuristic admissible without scaling (every edge >= straight line)", () => {
@@ -39,40 +30,48 @@ describe("demo navigation graph", () => {
 });
 
 describe("same-floor route", () => {
-  it("routes between two rooms on the ground floor with the expected weighted distance", () => {
-    const r = ok(computeRoute(graph, roomDoor(EDUCATION), roomDoor(STUDENT_AFFAIRS)));
-    // door(1.5) + corridor(9.5) + door(1.5)
-    expect(r.totalDistance).toBeCloseTo(12.5, 5);
-    expect(r.floorIds).toEqual(["floor-00"]);
-    expect(r.segments).toHaveLength(1);
+  it("routes between two offices of one building along the corridor", () => {
+    const r = ok(computeRoute(graph, roomDoor(B1_OFFICE_400), roomDoor("campus-b1-r402")));
+    expect(r.floorIds).toEqual(["campus-b1-f1"]);
     expect(r.transfers).toHaveLength(0);
-    expect(r.nodeIds[0]).toBe(roomDoor(EDUCATION));
-    expect(r.nodeIds.at(-1)).toBe(roomDoor(STUDENT_AFFAIRS));
+    expect(r.nodeIds[0]).toBe(roomDoor(B1_OFFICE_400));
+    expect(r.nodeIds.at(-1)).toBe(roomDoor("campus-b1-r402"));
+    expect(r.totalDistance).toBeGreaterThan(2);
   });
 });
 
-describe("multi-floor route", () => {
-  it("goes ground -> second floor and exposes explicit vertical transfers", () => {
-    const r = ok(computeRoute(graph, roomDoor(EDUCATION), roomDoor(SECRETARIAT)));
-    expect(r.floorIds).toEqual(["floor-00", "floor-01", "floor-02"]);
-    expect(r.segments).toHaveLength(3);
-    expect(r.transfers).toHaveLength(2);
-    expect(r.transfers.map((t) => t.direction)).toEqual(["up", "up"]);
-    // default (not accessible-only) prefers the cheaper stairs
-    expect(r.transfers.every((t) => t.via === "stairs")).toBe(true);
-    expect(r.stepFree).toBe(false);
-    // no straight line through floors: consecutive path nodes on different floors are always a transfer edge
-    for (const t of r.traversals) {
-      const a = graph.nodes.get(t.from)!;
-      const b = graph.nodes.get(t.to)!;
-      if (a.floorId !== b.floorId) expect(["stairs", "elevator"]).toContain(t.edge.edgeType);
-    }
+describe("route from an outdoor entrance", () => {
+  it("climbs from the ground floor to the first floor by the stairs", () => {
+    const r = ok(computeRoute(graph, ENTRANCE_B3, roomDoor(B3_OFFICE_440)));
+    expect(r.nodeIds[0]).toBe(ENTRANCE_B3);
+    expect(r.floorIds).toEqual(["campus-b3-f0", "campus-b3-f1"]);
+    expect(r.nodes[0]!.type).toBe("entrance");
+    expect(r.transfers).toHaveLength(1);
+    expect(r.transfers[0]!.via).toBe("stairs");
   });
 
+  it("reaches building 2 (no outdoor door) only through a sky bridge", () => {
+    const fromB3 = ok(computeRoute(graph, ENTRANCE_B3, roomDoor(B2_OFFICE_430)));
+    expect(fromB3.traversals.filter((t) => t.edge.edgeType === "bridge")).toHaveLength(1);
+    expect(buildingsOf(fromB3)).toEqual(["campus-b3", "campus-b2"]);
+    const fromB1 = ok(computeRoute(graph, ENTRANCE_B1, roomDoor(B2_OFFICE_430)));
+    expect(fromB1.traversals.filter((t) => t.edge.edgeType === "bridge")).toHaveLength(1);
+    expect(buildingsOf(fromB1)).toEqual(["campus-b1", "campus-b2"]);
+  });
+
+  it("goes between building 3 and building 1 across both bridges", () => {
+    const r = ok(computeRoute(graph, roomDoor(B3_OFFICE_440), roomDoor(B1_OFFICE_400)));
+    expect(r.traversals.filter((t) => t.edge.edgeType === "bridge")).toHaveLength(2);
+    expect(buildingsOf(r)).toEqual(["campus-b3", "campus-b2", "campus-b1"]);
+    expect(r.floorIds).toEqual(["campus-b3-f1"]); // the sky bridges join the first floors: no stairs needed
+  });
+});
+
+describe("shortest paths", () => {
   it("A* and Dijkstra agree on cost; A* expands no more nodes", () => {
-    const ids = data.rooms.map((r) => roomDoor(r.id));
-    for (const from of ids.slice(0, 21)) {
-      for (const to of [roomDoor(FINANCE), roomDoor(SECRETARIAT), ENTRANCE]) {
+    const ids = data.rooms.filter((r) => r.doorNodeId).map((r) => roomDoor(r.id));
+    for (const from of ids.slice(0, 20)) {
+      for (const to of [roomDoor(B2_OFFICE_430), roomDoor(B1_OFFICE_400), ENTRANCE_B3]) {
         if (from === to) continue;
         const a = findPath(graph, from, to, { algorithm: "astar" });
         const d = findPath(graph, from, to, { algorithm: "dijkstra" });
@@ -84,41 +83,14 @@ describe("multi-floor route", () => {
   });
 });
 
-describe("route from the entrance", () => {
-  it("reaches the Finance Office on the first floor", () => {
-    const r = ok(computeRoute(graph, ENTRANCE, roomDoor(FINANCE)));
-    expect(r.nodeIds[0]).toBe(ENTRANCE);
-    expect(r.floorIds).toEqual(["floor-00", "floor-01"]);
-    expect(r.nodes[0]!.type).toBe("entrance");
-  });
-});
-
 describe("accessible (step-free) route", () => {
-  it("avoids stairs and uses the elevator, and is reported step-free from the data", () => {
-    const r = ok(computeRoute(graph, ENTRANCE, roomDoor(FINANCE), { accessibleOnly: true }));
-    expect(r.transfers).toHaveLength(1);
-    expect(r.transfers[0]!.via).toBe("elevator");
-    expect(r.traversals.some((t) => t.edge.edgeType === "stairs")).toBe(false);
-    expect(r.stepFree).toBe(true);
+  it("says so when the only way up is a staircase (there is no elevator in the data)", () => {
+    expect(computeRoute(graph, ENTRANCE_B3, roomDoor(B3_OFFICE_440)).status).toBe("ok");
+    expect(computeRoute(graph, ENTRANCE_B3, roomDoor(B3_OFFICE_440), { accessibleOnly: true }).status).toBe("no-accessible-route");
   });
 
-  it("is never longer-than-necessary wrong: accessible cost >= unrestricted cost", () => {
-    const a = ok(computeRoute(graph, ENTRANCE, roomDoor(SECRETARIAT)));
-    const b = ok(computeRoute(graph, ENTRANCE, roomDoor(SECRETARIAT), { accessibleOnly: true }));
-    expect(b.totalDistance).toBeGreaterThanOrEqual(a.totalDistance);
-  });
-
-  it("explains when a destination only has a non-accessible connection", () => {
-    // demo data marks the study hall threshold as not accessible
-    const normal = computeRoute(graph, ENTRANCE, roomDoor(STUDY_HALL));
-    expect(normal.status).toBe("ok");
-    const r = computeRoute(graph, ENTRANCE, roomDoor(STUDY_HALL), { accessibleOnly: true });
-    expect(r.status).toBe("no-accessible-route");
-  });
-
-  it("does not call a route step-free when an edge is not explicitly accessible", () => {
-    const r = ok(computeRoute(graph, ENTRANCE, roomDoor(STUDY_HALL)));
-    expect(r.stepFree).toBe(false);
+  it("does not call a stair route step-free", () => {
+    expect(ok(computeRoute(graph, ENTRANCE_B3, roomDoor(B3_OFFICE_440))).stepFree).toBe(false);
   });
 });
 
@@ -166,27 +138,28 @@ describe("no-route and invalid input", () => {
 
 describe("route replacement when the destination changes", () => {
   it("returns a different, correct route for the new destination and leaves the old one untouched", () => {
-    const first = ok(computeRoute(graph, ENTRANCE, roomDoor(EDUCATION)));
-    const second = ok(computeRoute(graph, ENTRANCE, roomDoor(FINANCE)));
-    expect(second.goalId).toBe(roomDoor(FINANCE));
-    expect(first.goalId).toBe(roomDoor(EDUCATION));
+    const first = ok(computeRoute(graph, ENTRANCE_B3, roomDoor(B3_OFFICE_440)));
+    const second = ok(computeRoute(graph, ENTRANCE_B3, roomDoor(B2_OFFICE_430)));
+    expect(second.goalId).toBe(roomDoor(B2_OFFICE_430));
+    expect(first.goalId).toBe(roomDoor(B3_OFFICE_440));
     expect(second.nodeIds).not.toEqual(first.nodeIds);
-    expect(second.floorIds).toEqual(["floor-00", "floor-01"]);
-    expect(first.floorIds).toEqual(["floor-00"]);
+    expect(first.floorIds).toEqual(["campus-b3-f0", "campus-b3-f1"]);
+    expect(buildingsOf(second)).toEqual(["campus-b3", "campus-b2"]);
   });
 });
 
 describe("directions", () => {
-  it("starts with start, ends with arrive and contains a transfer for multi-floor routes", () => {
-    const r = ok(computeRoute(graph, ENTRANCE, roomDoor(FINANCE)));
+  it("starts with start, ends with arrive and has a bridge step for the sky bridge", () => {
+    const r = ok(computeRoute(graph, ENTRANCE_B3, roomDoor(B2_OFFICE_430)));
     const steps = buildDirections(graph, r);
     expect(steps[0]!.kind).toBe("start");
     expect(steps.at(-1)!.kind).toBe("arrive");
     expect(steps.filter((s) => s.kind === "transfer")).toHaveLength(1);
-    const walked = steps.filter((s) => s.kind === "walk").reduce((n, s) => n + (s.kind === "walk" ? s.distance : 0), 0);
-    const transfers = r.traversals.filter((t) => t.edge.edgeType === "stairs" || t.edge.edgeType === "elevator");
-    const vertical = transfers.reduce((n, t) => n + t.edge.distance, 0);
-    expect(walked + vertical).toBeCloseTo(r.totalDistance, 5);
+    expect(steps.filter((s) => s.kind === "bridge")).toHaveLength(1);
+    // every metre of the route is accounted for by a walk, a stair flight or a bridge step
+    const sum = steps.reduce((n, s) => n + (s.kind === "walk" || s.kind === "bridge" ? s.distance : 0), 0);
+    const vertical = r.traversals.filter((t) => t.edge.edgeType === "stairs" || t.edge.edgeType === "elevator").reduce((n, t) => n + t.edge.distance, 0);
+    expect(sum + vertical).toBeCloseTo(r.totalDistance, 5);
   });
 
   it("computes left/right turns with a documented handedness (north then east = right)", () => {

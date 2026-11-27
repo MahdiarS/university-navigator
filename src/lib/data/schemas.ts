@@ -43,7 +43,7 @@ const modelUrl = z
 
 export const ROOM_TYPES = ["office", "classroom", "lab", "meeting", "study", "library", "lobby", "restroom", "hall", "other"] as const;
 export const NODE_TYPES = ["entrance", "corridor", "junction", "room-door", "stair", "elevator"] as const;
-export const EDGE_TYPES = ["corridor", "door", "stairs", "elevator"] as const;
+export const EDGE_TYPES = ["corridor", "door", "stairs", "elevator", "bridge"] as const;
 export const FACILITY_TYPES = ["restroom", "stairs", "elevator", "info-desk", "other"] as const;
 
 export const BuildingSchema = z.object({
@@ -148,44 +148,6 @@ export const NavEdgeSchema = z.object({
   accessible: z.boolean(),
   bidirectional: z.boolean(),
   isDemo: z.boolean().default(false),
-});
-
-// ---------------------------------------------------------------- model manifest
-const modelAssetSchema = z.object({
-  path: z.string().startsWith("/"),
-  status: z.enum(["available", "unavailable"]),
-});
-
-const rectSchema = z.object({ minX: z.number(), maxX: z.number(), minZ: z.number(), maxZ: z.number() });
-
-export const ProceduralRoomLayoutSchema = rectSchema.extend({
-  doorSide: z.enum(["north", "south"]),
-  doorX: z.number(),
-});
-
-export const ProceduralLayoutSchema = z.object({
-  footprint: rectSchema,
-  floorHeight: z.number().positive(),
-  slabThickness: z.number().positive(),
-  wallHeight: z.number().positive(),
-  wallThickness: z.number().positive(),
-  doorWidth: z.number().positive(),
-  corridor: z.object({ minZ: z.number(), maxZ: z.number() }),
-  stairCore: rectSchema,
-  elevatorShaft: rectSchema,
-  stairNode: z.object({ x: z.number(), z: z.number() }),
-  elevatorNode: z.object({ x: z.number(), z: z.number() }),
-  mainEntrance: z.object({ x: z.number(), z: z.number(), width: z.number(), side: z.literal("south") }),
-  rooms: z.record(z.string(), ProceduralRoomLayoutSchema),
-});
-
-export const BuildingModelSchema = z.object({
-  buildingId: idSchema,
-  exterior: modelAssetSchema,
-  floors: z.array(modelAssetSchema.extend({ floorId: idSchema, floorNumber: z.number().int() })),
-  /** model object name -> room id */
-  objectMap: z.record(z.string(), idSchema),
-  procedural: ProceduralLayoutSchema,
 });
 
 const xzSchema = z.object({ x: z.number(), z: z.number() });
@@ -293,12 +255,45 @@ export const CampusSchema = z.object({
   trees: z.array(xzSchema.extend({ kind: z.enum(["round", "pine"]).optional(), scale: z.number().positive().optional() })),
 });
 
+/** First-floor interiors of the buildings that have an indoor map (geometry only; names live in rooms/departments). */
+export const InteriorFloorSchema = z.object({
+  floorId: idSchema,
+  buildingId: idSchema,
+  /** Y of the walking surface, meters */
+  elevation: z.number(),
+  /** clear height between floor and ceiling, meters */
+  height: z.number().positive(),
+  outline: z.array(xzSchema).min(3),
+  corridors: z.array(z.array(xzSchema).min(3)),
+  rooms: z.array(z.object({ roomId: idSchema, kind: z.enum(ROOM_TYPES), number: z.string(), polygon: z.array(xzSchema).min(3) })),
+  /** position of the stair core, when the floor has one */
+  stairs: xzSchema.nullable(),
+});
+
+/** An enclosed walkway between the first floors of two buildings. */
+export const SkyBridgeSchema = z.object({
+  id: idSchema,
+  label: z.string(),
+  fromBuildingId: idSchema,
+  toBuildingId: idSchema,
+  width: z.number().positive(),
+  elevation: z.number(),
+  height: z.number().positive(),
+  points: z.array(xzSchema).min(2),
+});
+
+export const InteriorsSchema = z.object({
+  floors: z.array(InteriorFloorSchema),
+  bridges: z.array(SkyBridgeSchema),
+  /** rooms whose names were transcribed from hard-to-read hand-drawn sketches and still need the owner's proofreading */
+  needsReview: z.array(idSchema).default([]),
+});
+
 export const ModelManifestSchema = z.object({
   schemaVersion: z.literal(1),
-  isDemo: z.boolean(),
   note: z.string().optional(),
   units: z.literal("meters"),
   coordinateSystem: z.record(z.string(), z.string()),
-  buildings: z.array(BuildingModelSchema),
   campus: CampusSchema,
+  interiors: InteriorsSchema,
 });
