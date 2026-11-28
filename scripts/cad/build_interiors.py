@@ -4,7 +4,8 @@ First-floor interiors of campus buildings 1, 2 and 3 + the two sky bridges betwe
 
 Inputs (both committed):
   data/campus/campus-layout.json   building footprints / outdoor doors (from the site plan, see build_campus.py)
-  scripts/cad/campus-offices.json  room numbers, names and the order of the rooms (owner's hand-drawn sketches)
+  scripts/cad/floorplans.py        corridor and room rectangles per building (from the owner's hand-drawn sketches)
+  scripts/cad/campus-offices.json  room numbers, names, field and confidence
 
 Outputs (data/indoor/):
   buildings / floors / rooms / departments / department-services / entrances / facilities /
@@ -27,7 +28,10 @@ from pathlib import Path
 
 from shapely import affinity
 from shapely.geometry import LineString, MultiPolygon, Point, Polygon, box
-from shapely.ops import unary_union
+from shapely.ops import nearest_points, unary_union
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from floorplans import PLANS  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[2]
 OUT = ROOT / "data" / "indoor"
@@ -143,137 +147,144 @@ def main() -> None:
         edges.append({"id": f"e{edge_ix[0]:03d}", "fromNode": a, "toNode": b, "distance": r2(d + 0.005), "edgeType": etype, "accessible": accessible, "bidirectional": True, "isDemo": False})
 
     summary = []
+    bridge_ends: dict[int, dict] = {}
     for n in (1, 2, 3):
         spec = offices[str(n)]
+        plan = PLANS[n]
         fp_w = wing_fp[n]
         fp = to_local(fp_w)
-        umin, vmin, umax, vmax = fp.bounds
+        u0, v0, _, _ = fp.bounds
         bid = f"campus-b{n}"
         f0, f1 = f"{bid}-f0", f"{bid}-f1"
         cb = cbuild[n]
         buildings.append({"id": bid, "name": f"ساختمان {fa(n)}", "slug": f"building-{n}", "description": cb.get("description"), "modelUrl": None, "isActive": True, "isDemo": False})
         floors.append({"id": f0, "buildingId": bid, "floorNumber": 0, "displayName": "همکف", "elevation": 0, "modelUrl": None, "isDemo": False})
         floors.append({"id": f1, "buildingId": bid, "floorNumber": 1, "displayName": "طبقه اول", "elevation": STOREY, "modelUrl": None, "isDemo": False})
-
-        # fixed cells: the stair lobby at the outdoor door, the bridge vestibules at the bridge
         door = (cb.get("doors") or [None])[0]
-        bridge_here = [b for b in bridges if n in (b["a"], b["b"])]
-        cells: list[dict] = []  # {id, kind, label, poly(local), side, door_axis}
-        corridors = []
-        door_line: dict[str, tuple[float, float]] = {}  # cell id -> (door point local, corridor point local)
 
-        def cell_poly(rect: Polygon, avoid: list[Polygon]):
-            g = fp.intersection(rect)
-            for a in avoid:
-                g = g.difference(a)
-            return largest(g)
+        def rect(r):
+            return box(u0 + r[0], v0 + r[1], u0 + r[2], v0 + r[3])
 
-        if spec["layout"] == "corridor-two-sides":
-            vc = spec.get("corridorV", (vmin + vmax) / 2)
-            corr = box(umin - 1, vc - HALF, umax + 1, vc + HALF)
-            corridors.append(fp.intersection(corr))
-            fixed_n: dict[str, tuple[float, float]] = {}
-            fixed_s: dict[str, tuple[float, float]] = {}
-            for tok_side, toks, fixed, north in (("north", spec["north"], fixed_n, True), ("south", spec["south"], fixed_s, False)):
-                for t in toks:
-                    if t == "@entrance" and door:
-                        u = to_local(Point(door["x"], door["z"])).x
-                        fixed[t] = (u, 4.8)
-                    elif t == "@bridge":
-                        # the bridge meets this wall on this side iff the building has a bridge to the north/south
-                        has = any((b["b"] == n and north) or (b["a"] == n and not north) for b in bridges)
-                        if has:
-                            u = to_local(Point(BRIDGE_X, (wall_z(n, north)))).x
-                            fixed[t] = (u, 4.4)
-            for side_name, toks, fixed, v0, v1, north in (
-                ("north", spec["north"], fixed_n, vmin - 1, vc - HALF, True),
-                ("south", spec["south"], fixed_s, vc + HALF, vmax + 1, False),
-            ):
-                toks2 = [t for t in toks if not (t.startswith("@") and t not in fixed)]
-                for tok, a, b in split_axis(umin - 1, umax + 1, toks2, fixed):
-                    poly = cell_poly(box(a, v0, b, v1), [corr])
-                    if poly is None:
-                        continue
-                    uc = (max(a, umin) + min(b, umax)) / 2
-                    vedge = v1 if north else v0
-                    cells.append({"tok": tok, "poly": poly, "u": uc, "vcorr": vc, "vdoor": vedge, "north": north, "axis": "u"})
-            main_len = umax - umin
+        def wpt(p):  # local point -> world (x, z)
+            q = to_world(Point(p[0], p[1]))
+            return q.x, q.y
 
-        # ------------------------------------------------------------------ rooms, departments, nodes, edges
-        info = spec["rooms"]
-        svc = spec.get("service", {})
-        # corridor graph nodes
-        stops: dict[str, list] = {}  # corridor-axis position -> node id
-        cor_nodes_main: list[tuple[float, str]] = []
-        cor_nodes_wing: list[tuple[float, str]] = []
-
-        def corr_node(axis: str, pos: float, key: str, label: str):
-            nid = f"{bid}-c-{key}"
-            if nid in node_ix:
-                return nid
-            if axis == "u":
-                x, z = pt_world(pos, vc)
-                lst = cor_nodes_main
+        # corridors (clipped to the footprint) and their centre lines for the walking graph
+        corr_polys = [largest(fp.intersection(rect(r))) for r in plan["corridors"]]
+        corr_union = unary_union(corr_polys)
+        centre_lines = []
+        for g in corr_polys:
+            cu0, cv0, cu1, cv1 = g.bounds
+            if cu1 - cu0 >= cv1 - cv0:
+                centre_lines.append(LineString([(cu0, (cv0 + cv1) / 2), (cu1, (cv0 + cv1) / 2)]))
             else:
-                x, z = pt_world(wing_info["ucw"], pos)
-                lst = cor_nodes_wing
-            add_node(nid, bid, f1, x, STOREY, z, "corridor", label)
-            lst.append((pos, nid))
+                centre_lines.append(LineString([((cu0 + cu1) / 2, cv0), ((cu0 + cu1) / 2, cv1)]))
+
+        # corridor nodes live on a centre line; a node is reused when another one is within 0.4 m along the same line
+        line_nodes: list[list[tuple[float, str]]] = [[] for _ in centre_lines]
+        counter = [0]
+
+        def corridor_node(li: int, pt, centre_lines=centre_lines, line_nodes=line_nodes, counter=counter, bid=bid, f1=f1, wpt=wpt) -> str:
+            line = centre_lines[li]
+            t = line.project(pt)
+            for tt, nid in line_nodes[li]:
+                if abs(tt - t) < 0.4:
+                    return nid
+            counter[0] += 1
+            nid = f"{bid}-c{counter[0]:02d}"
+            q = line.interpolate(t)
+            x, z = wpt((q.x, q.y))
+            add_node(nid, bid, f1, x, STOREY, z, "corridor", "راهرو")
+            line_nodes[li].append((t, nid))
             return nid
 
+        def nearest_line(pt, centre_lines=centre_lines) -> int:
+            return min(range(len(centre_lines)), key=lambda i: centre_lines[i].distance(pt))
+
+        # corridors that touch are joined at the nearest points of their centre lines
+        for i in range(len(centre_lines)):
+            for j in range(i + 1, len(centre_lines)):
+                if corr_polys[i].distance(corr_polys[j]) > 0.3:
+                    continue
+                pi, pj = nearest_points(centre_lines[i], centre_lines[j])
+                a_, b_ = corridor_node(i, pi), corridor_node(j, pj)
+                if a_ != b_:
+                    if pi.distance(pj) < 0.05:
+                        # the centre lines cross: one shared node instead of a zero-length edge
+                        line_nodes[j].append((centre_lines[j].project(pj), a_))
+                        line_nodes[j] = [x for x in line_nodes[j] if x[1] != b_]
+                    else:
+                        add_edge(a_, b_, "corridor")
+        # corridor ends (so the 3D route and doors near an end have a node)
+        for i, line in enumerate(centre_lines):
+            for c in line.coords:
+                corridor_node(i, Point(c))
+        # walk each line: chain its nodes in order
+        def chain_lines(line_nodes=line_nodes):
+            done = set()
+            for i, lst in enumerate(line_nodes):
+                lst.sort()
+                for (ta, na_), (tb, nb_) in zip(lst, lst[1:]):
+                    if na_ != nb_ and (na_, nb_) not in done:
+                        done.add((na_, nb_))
+                        add_edge(na_, nb_, "corridor")
+
+        # cells: rooms, lobby
+        info = spec["rooms"]
+        svc = spec.get("service", {})
+        cells = []
+        for tok, r in plan["rooms"].items():
+            poly = largest(fp.intersection(rect(r)).difference(corr_union))
+            cells.append({"tok": tok, "poly": poly})
+        if "lobby" in plan:
+            cells.append({"tok": "@entrance", "poly": largest(fp.intersection(rect(plan["lobby"])).difference(corr_union))})
         room_records = []
         stair_cell = None
+        pending_edges = []
         for c in cells:
             tok, poly = c["tok"], c["poly"]
-            area = poly.area
-            cid = tok
             if tok == "@entrance":
                 kind, number, name = "lobby", "L", f"لابی و راه‌پله ساختمان {fa(n)}"
                 rid = f"{bid}-lobby"
-            elif tok == "@bridge":
-                kind, number, name = "hall", "P", "ورودی پل هوایی"
-                rid = f"{bid}-bridge-hall-{'n' if c.get('north') else 's'}"
             elif tok in svc:
                 kind, number, name = svc[tok]["kind"], "", svc[tok]["name"]
                 rid = f"{bid}-{tok}"
             else:
                 rinfo = info.get(tok, {"names": []})
-                number = tok
-                kind = rinfo.get("kind", "office")
-                title = rinfo.get("title")
-                names = rinfo["names"]
-                name = rinfo.get("name") or (f"دفتر {fa(tok)}")
+                number, kind = tok, rinfo.get("kind", "office")
+                name = rinfo.get("name") or f"دفتر {fa(tok)}"
                 rid = f"{bid}-r{tok}"
             c["rid"], c["kind"], c["number"], c["name"] = rid, kind, number, name
-
-            # door + corridor nodes
-            if c["axis"] == "u":
-                uc = c["u"]
-                key = f"u{int(round(uc * 10)):05d}"
-                cn = corr_node("u", uc, key, "راهرو")
-                dx, dz = pt_world(uc, c["vdoor"])
-                dn = f"{bid}-d-{tok.strip('@')}{'-n' if c.get('north') else '-s'}"
-            else:
-                vv = c["v"]
-                key = f"w{int(round(vv * 10)):05d}"
-                cn = corr_node("v", vv, key, "راهرو")
-                dx, dz = pt_world(c["udoor"], vv)
-                dn = f"{bid}-d-{tok}"
+            # the door sits on the wall the room shares with a corridor (the lobby: the wall towards the corridor)
+            shared = poly.boundary.intersection(corr_union.buffer(0.12))
+            if shared.is_empty:
+                print(f"  WARNING {bid} {tok}: no wall shared with a corridor", file=sys.stderr)
+                continue
+            mid = shared.centroid if not isinstance(shared, Point) else shared
+            dpt = poly.boundary.interpolate(poly.boundary.project(mid))
+            li = nearest_line(dpt)
+            cn = corridor_node(li, dpt)
+            cq = centre_lines[li].interpolate(centre_lines[li].project(dpt))
+            if dpt.distance(cq) < 0.15:  # keep the door node off the corridor node so the door edge has a length
+                cen = poly.representative_point()
+                d_ = max(dpt.distance(cen), 1e-9)
+                dpt = Point(dpt.x + (cen.x - dpt.x) / d_ * 0.3, dpt.y + (cen.y - dpt.y) / d_ * 0.3)
+            dx, dz = wpt((dpt.x, dpt.y))
+            dn = f"{bid}-d-{tok.strip('@')}"
             add_node(dn, bid, f1, dx, STOREY, dz, "room-door", name if tok.startswith("@") or tok in svc else f"اتاق {fa(tok)}")
-            add_edge(cn, dn, "door")
+            pending_edges.append((cn, dn, "door"))
             rp = to_world(poly).representative_point()
-            c["door_node"] = dn
-            c["corr_node"] = cn
+            c["door_node"], c["corr_node"] = dn, cn
             if tok == "@entrance":
                 stair_cell = c
             rooms.append(
                 {
                     "id": rid,
                     "floorId": f1,
-                    "roomNumber": number if number not in ("", "L", "P") else {"L": "لابی", "P": "پل", "": "—"}[number],
+                    "roomNumber": number if number not in ("", "L") else {"L": "لابی", "": "—"}[number],
                     "name": name,
                     "roomType": kind,
-                    "modelObjectId": f"ROOM_{bid.upper().replace('-', '_')}_{tok.strip('@').upper().replace('-', '_')}{'_' + ('N' if c.get('north') else 'S') if tok == '@bridge' else ''}",
+                    "modelObjectId": f"ROOM_{bid.upper().replace('-', '_')}_{tok.strip('@').upper().replace('-', '_')}",
                     "positionX": r2(rp.x),
                     "positionY": STOREY,
                     "positionZ": r2(rp.y),
@@ -295,18 +306,11 @@ def main() -> None:
                     depts.append({"id": f"prof-{bid}-{tok}-{i + 1}", "roomId": rid, "name": full, "slug": f"office-{tok}-{i + 1}", "description": desc, "phone": None, "workingHours": None, "keywords": kw, "isActive": True, "isDemo": False})
             room_records.append(c)
 
-        # corridor ends + chain the corridor nodes
-        def chain(lst, axis):
-            lst.sort()
-            for (pa, na_), (pb, nb_) in zip(lst, lst[1:]):
-                if na_ != nb_:
-                    add_edge(na_, nb_, "corridor")
-
-        chain(cor_nodes_main, "u")
+        for a_, b_, t_ in pending_edges:
+            add_edge(a_, b_, t_)
 
         # stairs: outdoor door (ground) -> stair foot -> stair top (lobby) -> corridor
         if door and stair_cell:
-            lx, lz = pt_world(stair_cell["u"], stair_cell["vcorr"] + (stair_cell["vdoor"] - stair_cell["vcorr"]) * 2.2)
             lobby_c = to_world(stair_cell["poly"]).representative_point()
             ent = f"{bid}-entrance"
             add_node(ent, bid, f0, door["x"], 0, door["z"], "entrance", f"ورودی ساختمان {fa(n)}")
@@ -324,6 +328,9 @@ def main() -> None:
         else:
             stair_info = None
 
+        # where the sky bridges reach this building: the wall point plus the corridor node it joins
+        bridge_ends[n] = {"line": nearest_line, "node": corridor_node, "wpt": wpt, "bid": bid, "f1": f1, "u0": u0, "v0": v0, "chain": chain_lines}
+
         interior_floors.append(
             {
                 "floorId": f1,
@@ -331,7 +338,7 @@ def main() -> None:
                 "elevation": STOREY,
                 "height": 3.0,
                 "outline": ring(wing_fp[n]),
-                "corridors": [ring(to_world(g)) for p in corridors for g in ([p] if isinstance(p, Polygon) else list(p.geoms)) if isinstance(g, Polygon)],
+                "corridors": [ring(to_world(g)) for g in corr_polys if isinstance(g, Polygon)],
                 "rooms": [{"roomId": c["rid"], "kind": c["kind"], "number": c["number"], "polygon": ring(to_world(c["poly"]))} for c in room_records],
                 "stairs": stair_info,
             }
@@ -341,20 +348,26 @@ def main() -> None:
         for c in room_records:
             if c["poly"].area < 7:
                 print(f"  WARNING small cell {bid} {c['tok']}: {c['poly'].area:.1f} m2", file=sys.stderr)
+        expected = [t for t in plan["rooms"]]
+        missing = [t for t in info if t not in plan["rooms"]]
+        if missing:
+            print(f"  WARNING {bid}: rooms in campus-offices.json not in the plan: {missing}", file=sys.stderr)
 
-    # ------------------------------------------------------------------ bridges: nodes at the walls and edges between the vestibules
+    # ------------------------------------------------------------------ bridges: nodes at the walls, joined to the nearest corridor
     bridge_geo = []
     for br in bridges:
         a, b = br["a"], br["b"]
-        ha = next(r for r in rooms if r["id"] == f"campus-b{a}-bridge-hall-s")
-        hb = next(r for r in rooms if r["id"] == f"campus-b{b}-bridge-hall-n")
         pa = f"bridge-{a}-{b}-a"
         pb = f"bridge-{a}-{b}-b"
         add_node(pa, f"campus-b{a}", f"campus-b{a}-f1", BRIDGE_X, STOREY, br["za"], "junction", f"ابتدای پل هوایی (ساختمان {fa(a)})")
         add_node(pb, f"campus-b{b}", f"campus-b{b}-f1", BRIDGE_X, STOREY, br["zb"], "junction", f"انتهای پل هوایی (ساختمان {fa(b)})")
-        add_edge(ha["doorNodeId"], pa, "corridor")
+        for n_, pid, z in ((a, pa, br["za"]), (b, pb, br["zb"])):
+            be = bridge_ends[n_]
+            loc = to_local(Point(BRIDGE_X, z))
+            pt = Point(loc.x, loc.y)
+            li = be["line"](pt)
+            add_edge(be["node"](li, pt), pid, "corridor")
         add_edge(pa, pb, "bridge", dist=br["length"])
-        add_edge(pb, hb["doorNodeId"], "corridor")
         bridge_geo.append(
             {
                 "id": br["id"],
@@ -368,6 +381,9 @@ def main() -> None:
             }
         )
 
+    for be in bridge_ends.values():
+        be["chain"]()
+
     OUT.mkdir(parents=True, exist_ok=True)
 
     def write(name, data):
@@ -380,6 +396,8 @@ def main() -> None:
     write("department-services.json", [])
     write("entrances.json", entrances)
     write("facilities.json", facilities)
+    used = {e["fromNode"] for e in edges} | {e["toNode"] for e in edges}
+    nodes[:] = [n for n in nodes if n["id"] in used]  # drop nodes merged away at corridor crossings
     write("navigation-nodes.json", nodes)
     write("navigation-edges.json", edges)
     write("interiors.json", {"floors": interior_floors, "bridges": bridge_geo, "needsReview": needs_review})
